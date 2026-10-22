@@ -1,0 +1,5 @@
+com\fishmall\admin\security\AdminJwtTokenServiceTest.class
+com\fishmall\catalog\infrastructure\LocalFileStorageServiceTest.class
+com\fishmall\admin\application\AdminAuthServiceTest.class
+com\fishmall\catalog\application\AdminProductServiceTest.class
+com\fishmall\catalog\application\AdminCategoryServiceTest.class

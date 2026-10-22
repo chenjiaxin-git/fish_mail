@@ -1,0 +1,2 @@
+-- The single administrator is initialized by AdminBootstrapRunner using
+-- ADMIN_USERNAME and ADMIN_INITIAL_PASSWORD. No default password is stored here.
