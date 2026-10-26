@@ -1,0 +1,19 @@
+page {
+  background: #f5f7fa;
+  color: #1f2937;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+view,
+text,
+input,
+button,
+image,
+scroll-view {
+  box-sizing: border-box;
+}
+
+button::after {
+  border: 0;
+}

@@ -19,9 +19,16 @@ public interface ProductCategoryMapper {
             + "order by sort desc, id asc limit #{offset}, #{pageSize}</script>")
     List<ProductCategory> selectPage(@Param("status") String status, @Param("offset") int offset, @Param("pageSize") int pageSize);
 
+    @Select("select * from product_category where deleted = 0 and status = 'ACTIVE' order by sort desc, id asc")
+    List<ProductCategory> findAllActive();
+
     @Select("<script>select count(*) from product_category where deleted = 0 "
             + "<if test='status != null and status != &quot;&quot;'>and status = #{status}</if></script>")
     long count(@Param("status") String status);
+
+    @Select("<script>select * from product_category where id in "
+            + "<foreach collection='ids' item='id' open='(' separator=',' close=')'>#{id}</foreach></script>")
+    List<ProductCategory> findAllByIds(@Param("ids") List<Long> ids);
 
     @Select("select * from product_category where id = #{id} and deleted = 0")
     Optional<ProductCategory> findActiveById(@Param("id") Long id);

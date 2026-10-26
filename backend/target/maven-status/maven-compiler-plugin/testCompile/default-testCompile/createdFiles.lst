@@ -1,5 +1,10 @@
 com\fishmall\admin\security\AdminJwtTokenServiceTest.class
-com\fishmall\catalog\infrastructure\LocalFileStorageServiceTest.class
 com\fishmall\admin\application\AdminAuthServiceTest.class
 com\fishmall\catalog\application\AdminProductServiceTest.class
+com\fishmall\order\domain\OrderStateMachineTest.class
+com\fishmall\catalog\infrastructure\LocalFileStorageServiceTest.class
+com\fishmall\order\application\AdminOrderServiceTest.class
+com\fishmall\order\application\AdminOrderExportServiceTest.class
 com\fishmall\catalog\application\AdminCategoryServiceTest.class
+com\fishmall\catalog\application\PublicCatalogServiceTest.class
+com\fishmall\catalog\api\PublicCatalogControllerTest.class

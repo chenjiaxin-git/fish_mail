@@ -1,0 +1,28 @@
+{
+  "description": "鲜鱼到家微信原生小程序",
+  "packOptions": {"ignore": [], "include": []},
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": true,
+    "babelSetting": {"ignore": [], "disablePlugins": [], "outputPath": ""}
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.10.0",
+  "appid": "touristappid",
+  "projectname": "fishmall-miniprogram",
+  "condition": {},
+  "editorSetting": {"tabIndent": "insertSpaces", "tabSize": 2}
+}

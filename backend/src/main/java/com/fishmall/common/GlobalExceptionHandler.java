@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,6 +33,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleUploadTooLarge(MaxUploadSizeExceededException exception, HttpServletRequest request) {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.error(ErrorCode.FILE_TOO_LARGE.code(), ErrorCode.FILE_TOO_LARGE.message(), traceId(request)));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handleParameterTypeMismatch(
+            MethodArgumentTypeMismatchException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR.code(), "参数格式不合法", traceId(request)));
     }
 
     @ExceptionHandler(Exception.class)

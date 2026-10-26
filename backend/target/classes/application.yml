@@ -32,6 +32,9 @@ product:
   image-base-url: ${PRODUCT_IMAGE_BASE_URL:/uploads/products}
   image-max-bytes: ${PRODUCT_IMAGE_MAX_BYTES:5242880}
 
+order:
+  payment-timeout-minutes: ${ORDER_PAYMENT_TIMEOUT_MINUTES:60}
+
 admin:
   username: \${ADMIN_USERNAME:admin}
   initial-password: \${ADMIN_INITIAL_PASSWORD:}

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class ProductStockLedger {
     private Long id;
     private Long productSpecId;
+    private Long orderId;
     private String changeType;
     private BigDecimal quantity;
     private BigDecimal physicalBefore;
@@ -22,6 +23,8 @@ public class ProductStockLedger {
     public void setId(Long id) { this.id = id; }
     public Long getProductSpecId() { return productSpecId; }
     public void setProductSpecId(Long productSpecId) { this.productSpecId = productSpecId; }
+    public Long getOrderId() { return orderId; }
+    public void setOrderId(Long orderId) { this.orderId = orderId; }
     public String getChangeType() { return changeType; }
     public void setChangeType(String changeType) { this.changeType = changeType; }
     public BigDecimal getQuantity() { return quantity; }

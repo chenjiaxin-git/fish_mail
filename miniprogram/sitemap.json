@@ -1,0 +1,6 @@
+{
+  "desc": "鲜鱼到家小程序页面索引",
+  "rules": [
+    {"action": "allow", "page": "pages/home/home"}
+  ]
+}

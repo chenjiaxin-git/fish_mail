@@ -1,5 +1,10 @@
 G:\fishMall\backend\src\test\java\com\fishmall\admin\application\AdminAuthServiceTest.java
 G:\fishMall\backend\src\test\java\com\fishmall\admin\security\AdminJwtTokenServiceTest.java
+G:\fishMall\backend\src\test\java\com\fishmall\catalog\api\PublicCatalogControllerTest.java
 G:\fishMall\backend\src\test\java\com\fishmall\catalog\application\AdminCategoryServiceTest.java
 G:\fishMall\backend\src\test\java\com\fishmall\catalog\application\AdminProductServiceTest.java
+G:\fishMall\backend\src\test\java\com\fishmall\catalog\application\PublicCatalogServiceTest.java
 G:\fishMall\backend\src\test\java\com\fishmall\catalog\infrastructure\LocalFileStorageServiceTest.java
+G:\fishMall\backend\src\test\java\com\fishmall\order\application\AdminOrderExportServiceTest.java
+G:\fishMall\backend\src\test\java\com\fishmall\order\application\AdminOrderServiceTest.java
+G:\fishMall\backend\src\test\java\com\fishmall\order\domain\OrderStateMachineTest.java

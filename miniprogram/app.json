@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/home/home"
+  ],
+  "window": {
+    "navigationBarTitleText": "鲜鱼到家",
+    "navigationBarBackgroundColor": "#0B3B60",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F7FA",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

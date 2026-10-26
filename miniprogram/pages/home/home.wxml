@@ -1,0 +1,99 @@
+<view class="page-shell">
+  <view class="search-panel">
+    <view class="search-box">
+      <text class="search-icon">⌕</text>
+      <input
+        class="search-input"
+        value="{{keyword}}"
+        maxlength="100"
+        placeholder="搜索商品名称"
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bindinput="onKeywordInput"
+        bindconfirm="onKeywordConfirm"
+      />
+      <text wx:if="{{keyword}}" class="clear-button" bindtap="onClearKeywordTap">×</text>
+    </view>
+    <button class="search-button" bindtap="onSearchTap">搜索</button>
+  </view>
+
+  <view wx:if="{{banners.length > 0}}" class="banner-wrap">
+    <swiper class="banner-swiper" autoplay circular indicator-dots="{{banners.length > 1}}" indicator-color="rgba(255,255,255,.55)" indicator-active-color="#FFFFFF">
+      <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onBannerTap" data-index="{{index}}">
+        <view class="banner-item">
+          <image wx:if="{{item.imageUrl && !item.imageFailed}}" class="banner-image" src="{{item.imageUrl}}" mode="aspectFill" binderror="onBannerImageError" data-index="{{index}}" />
+          <view wx:else class="image-placeholder banner-placeholder">{{item.imageFailed ? '图片加载失败' : '暂无图片'}}</view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <view wx:if="{{metaError}}" class="meta-error">
+    <text>轮播图或分类加载失败</text>
+    <button class="text-retry" bindtap="onRetryTap">重试</button>
+  </view>
+
+  <view class="section category-section">
+    <view class="section-heading">
+      <view>
+        <text class="section-title">商品分类</text>
+        <text class="section-subtitle">按分类筛选商品</text>
+      </view>
+    </view>
+    <scroll-view wx:if="{{categories.length > 0}}" class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="category-list">
+        <view class="category-chip {{selectedCategoryId === null ? 'category-chip-active' : ''}}" data-id="" bindtap="onCategoryTap">全部</view>
+        <view class="category-chip {{selectedCategoryId === item.id ? 'category-chip-active' : ''}}" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="onCategoryTap">{{item.name}}</view>
+      </view>
+    </scroll-view>
+    <view wx:else class="empty-category">暂无分类</view>
+  </view>
+
+  <view class="section product-section">
+    <view class="section-heading product-heading">
+      <view>
+        <text class="section-title">精选商品</text>
+        <text class="section-subtitle">新鲜水产，按需选购</text>
+      </view>
+      <text wx:if="{{products.length > 0}}" class="product-count">共{{totalProducts}}件</text>
+    </view>
+
+    <view wx:if="{{productsLoading}}" class="state-panel">
+      <view class="loading-dot"></view>
+      <text class="state-message">正在加载商品...</text>
+    </view>
+
+    <view wx:elif="{{productsError}}" class="state-panel error-panel">
+      <text class="state-title">商品加载失败</text>
+      <text class="state-message">{{productsError}}</text>
+      <button class="retry-button" bindtap="onRetryProductsTap">重试</button>
+    </view>
+
+    <view wx:elif="{{products.length === 0}}" class="state-panel empty-panel">
+      <view class="empty-icon">鱼</view>
+      <text class="state-title">暂无符合条件的商品</text>
+      <text class="state-message">换个分类或搜索词试试吧</text>
+    </view>
+
+    <view wx:else class="product-grid">
+      <view class="product-card" wx:for="{{products}}" wx:key="id" bindtap="onProductTap">
+        <view class="product-image-wrap">
+          <image wx:if="{{item.mainImageUrl && !item.imageFailed}}" class="product-image" src="{{item.mainImageUrl}}" mode="aspectFill" binderror="onProductImageError" data-index="{{index}}" />
+          <view wx:else class="image-placeholder product-placeholder">{{item.imageFailed ? '图片加载失败' : '暂无图片'}}</view>
+          <view wx:if="{{item.totalAvailableQty <= 0}}" class="sold-out-tag">暂时售罄</view>
+        </view>
+        <view class="product-info">
+          <text class="product-name">{{item.name}}</text>
+          <text class="product-subtitle">{{item.subtitle || '新鲜水产'}}</text>
+          <view class="product-meta">
+            <text class="product-price">¥{{item.priceText}}</text>
+            <text class="product-stock">库存 {{item.stockText}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{products.length > 0 && loadingMore}}" class="load-more">正在加载更多...</view>
+    <view wx:elif="{{products.length > 0 && !hasMore}}" class="load-more">没有更多了</view>
+  </view>
+</view>
