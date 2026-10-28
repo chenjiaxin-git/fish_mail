@@ -1,4 +1,6 @@
 const catalog = require('../../services/catalog')
+const cartService = require('../../services/cart')
+const auth = require('../../services/auth')
 const { formatMoneyCent, formatQuantity, formatPriceRange, resolveImageUrl } = require('../../utils/format')
 
 function roundQuantity(value) {
@@ -202,7 +204,61 @@ Page({
 
   onOrderTap() {
     if (this.data.orderDisabled) return
-    wx.showToast({ title: '下单功能暂未开放', icon: 'none' })
+    auth.ensureLogin()
+      .then(() => {
+        const spec = this.data.selectedSpec
+        const product = this.data.product
+        if (!spec || !product) return
+        const amountCent = Math.round(spec.priceCent * this.data.quantity)
+        const payload = {
+          mode: 'buy',
+          items: [{
+            productSpecId: spec.id,
+            quantity: this.data.quantity,
+            cartItemId: null,
+            productName: product.name,
+            specName: spec.name,
+            priceCent: spec.priceCent,
+            quantityKind: spec.quantityKind,
+            unit: spec.unit,
+            imageUrl: product.mainImageUrl,
+            amountCent
+          }]
+        }
+        wx.navigateTo({
+          url: '/pages/checkout/checkout',
+          success: (result) => {
+            result.eventChannel.emit('checkout-data', payload)
+          }
+        })
+      })
+      .catch((error) => {
+        wx.showToast({ title: error && error.message ? error.message : '登录失败，请稍后重试', icon: 'none' })
+      })
+  },
+
+  onCartTap() {
+    if (this.data.orderDisabled || this.requestLock) return
+    auth.ensureLogin()
+      .then(() => {
+        const spec = this.data.selectedSpec
+        if (!spec) return
+        this.requestLock = true
+        return cartService.addCart(spec.id, this.data.quantity)
+          .then(() => {
+            wx.showToast({ title: '已加入购物车', icon: 'none' })
+          })
+          .catch((error) => {
+            const message = error && error.message ? error.message : '网络异常，请稍后重试'
+            wx.showToast({ title: message, icon: 'none' })
+          })
+          .finally(() => {
+            this.requestLock = false
+          })
+      })
+      .catch((error) => {
+        wx.showToast({ title: error && error.message ? error.message : '登录失败，请稍后重试', icon: 'none' })
+      })
   },
 
   onImageError() {

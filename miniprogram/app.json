@@ -1,7 +1,11 @@
 {
   "pages": [
     "pages/home/home",
-    "pages/product-detail/product-detail"
+    "pages/product-detail/product-detail",
+    "pages/cart/cart",
+    "pages/checkout/checkout",
+    "pages/address/list/list",
+    "pages/address/edit/edit"
   ],
   "window": {
     "navigationBarTitleText": "鲜鱼到家",
@@ -9,6 +13,22 @@
     "navigationBarTextStyle": "white",
     "backgroundColor": "#F5F7FA",
     "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8B9AA7",
+    "selectedColor": "#0B3B60",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/cart/cart",
+        "text": "购物车"
+      }
+    ]
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

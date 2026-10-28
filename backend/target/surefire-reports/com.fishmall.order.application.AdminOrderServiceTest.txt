@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.fishmall.order.application.AdminOrderServiceTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.070 s -- in com.fishmall.order.application.AdminOrderServiceTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.090 s -- in com.fishmall.order.application.AdminOrderServiceTest

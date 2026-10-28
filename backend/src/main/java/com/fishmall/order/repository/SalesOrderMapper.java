@@ -1,7 +1,9 @@
 package com.fishmall.order.repository;
 
 import com.fishmall.order.domain.SalesOrder;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -17,6 +19,17 @@ public interface SalesOrderMapper {
 
     @Select("select * from sales_order where id = #{id} for update")
     Optional<SalesOrder> findByIdForUpdate(@Param("id") Long id);
+
+    @Select("select * from sales_order where wx_user_id = #{wxUserId} and idempotency_key = #{idempotencyKey} for update")
+    Optional<SalesOrder> findByUserIdAndIdempotencyKey(@Param("wxUserId") Long wxUserId,
+                                                      @Param("idempotencyKey") String idempotencyKey);
+
+    @Insert("insert into sales_order (order_no, wx_user_id, status, source, remark, address_snapshot, "
+            + "estimated_amount_cent, currency, quote_version, refund_status, idempotency_key, created_at, updated_at) "
+            + "values (#{orderNo}, #{wxUserId}, 'CREATED', 'MINI_PROGRAM', #{remark}, #{addressSnapshot}, "
+            + "#{estimatedAmountCent}, 'CNY', 0, 'NONE', #{idempotencyKey}, current_timestamp, current_timestamp)")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int insert(SalesOrder order);
 
     @Select("""
             <script>

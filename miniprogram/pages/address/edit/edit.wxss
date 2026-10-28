@@ -1,0 +1,91 @@
+.page-shell {
+  min-height: 100vh;
+  padding: 24rpx 24rpx 160rpx;
+}
+
+.form-card {
+  padding: 8rpx 24rpx;
+  border: 1rpx solid #e6edf2;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid #f0f4f7;
+}
+
+.form-row:last-child {
+  border-bottom: none;
+}
+
+.form-row-column {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14rpx;
+}
+
+.form-label-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.form-label {
+  color: #1f2937;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.form-input {
+  flex: 1;
+  height: 56rpx;
+  color: #1f2937;
+  font-size: 28rpx;
+  text-align: right;
+}
+
+.form-textarea {
+  width: 100%;
+  height: 150rpx;
+  padding: 16rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #dce5ed;
+  border-radius: 12rpx;
+  background: #f8fafc;
+  color: #1f2937;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.form-placeholder {
+  color: #b7c3ce;
+}
+
+.form-counter {
+  color: #b7c3ce;
+  font-size: 22rpx;
+  flex-shrink: 0;
+}
+
+.form-row-switch {
+  justify-content: space-between;
+}
+
+.save-button {
+  height: 84rpx;
+  margin-top: 40rpx;
+  border-radius: 16rpx;
+  background: #0b3b60;
+  color: #ffffff;
+  font-size: 30rpx;
+  line-height: 84rpx;
+}
+
+.save-button-disabled {
+  background: #c7d0d8;
+  color: #ffffff;
+}

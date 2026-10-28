@@ -1,0 +1,46 @@
+<view class="page-shell">
+  <view wx:if="{{loading}}" class="state-panel">
+    <view class="loading-dot"></view>
+    <text class="state-message">正在加载收货地址...</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state-panel error-panel">
+    <text class="state-title">地址加载失败</text>
+    <text class="state-message">{{error}}</text>
+    <button class="retry-button" bindtap="onRetryTap">重试</button>
+  </view>
+
+  <view wx:elif="{{addresses.length === 0}}" class="state-panel empty-panel">
+    <view class="empty-icon">址</view>
+    <text class="state-title">还没有收货地址</text>
+    <text class="state-message">添加地址后即可下单</text>
+    <button class="retry-button" bindtap="onAddTap">新增地址</button>
+  </view>
+
+  <block wx:else>
+    <view class="address-list">
+      <view
+        wx:for="{{addresses}}"
+        wx:key="id"
+        class="address-card"
+        data-id="{{item.id}}"
+        bindtap="onItemTap"
+      >
+        <view class="address-head">
+          <text class="address-name">{{item.contactName}}</text>
+          <text class="address-phone">{{item.phone}}</text>
+          <text wx:if="{{item.isDefault}}" class="default-tag">默认</text>
+        </view>
+        <text class="address-detail">{{item.detailAddress}}</text>
+        <view wx:if="{{!selectMode}}" class="address-actions">
+          <text class="action-button" data-id="{{item.id}}" catchtap="onEditTap">编辑</text>
+          <text class="action-button action-danger" data-id="{{item.id}}" catchtap="onDeleteTap">删除</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="add-button {{reachedLimit ? 'add-button-disabled' : ''}}" bindtap="onAddTap">
+      {{reachedLimit ? '已达上限（' + addresses.length + '/20）' : '新增地址'}}
+    </button>
+  </block>
+</view>

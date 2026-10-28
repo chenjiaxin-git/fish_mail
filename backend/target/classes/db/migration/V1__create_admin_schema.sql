@@ -5,8 +5,8 @@ CREATE TABLE admin_user (
     token_version BIGINT NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     last_login_at TIMESTAMP(3) NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT uk_admin_user_username UNIQUE (username),
     CONSTRAINT ck_admin_user_status CHECK (status IN ('ACTIVE', 'DISABLED'))
 );
@@ -20,7 +20,7 @@ CREATE TABLE admin_auth_log (
     ip VARCHAR(64) NULL,
     user_agent VARCHAR(255) NULL,
     trace_id VARCHAR(64) NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT ck_admin_auth_log_result CHECK (result IN ('SUCCESS', 'FAILED'))
 );
 

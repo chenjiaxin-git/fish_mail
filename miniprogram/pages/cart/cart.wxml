@@ -1,0 +1,89 @@
+<view class="page-shell">
+  <view wx:if="{{loading}}" class="state-panel">
+    <view class="loading-dot"></view>
+    <text class="state-message">正在加载购物车...</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state-panel error-panel">
+    <text class="state-title">购物车加载失败</text>
+    <text class="state-message">{{error}}</text>
+    <button class="retry-button" bindtap="onRetryTap">重试</button>
+  </view>
+
+  <view wx:elif="{{items.length === 0}}" class="state-panel empty-panel">
+    <view class="empty-icon">车</view>
+    <text class="state-title">购物车空空如也</text>
+    <text class="state-message">去逛逛，挑几条新鲜的鱼</text>
+    <button class="retry-button" bindtap="onGoShoppingTap">去逛逛</button>
+  </view>
+
+  <block wx:else>
+    <view class="cart-list">
+      <view
+        wx:for="{{items}}"
+        wx:key="id"
+        class="cart-card {{item.purchasable ? '' : 'cart-card-disabled'}}"
+        data-id="{{item.id}}"
+        bindtap="onItemTap"
+      >
+        <view
+          class="check-box {{item.purchasable ? '' : 'check-box-disabled'}}"
+          data-id="{{item.id}}"
+          catchtap="onToggleSelect"
+        >
+          <view wx:if="{{item.selected}}" class="check-dot">✓</view>
+        </view>
+        <image
+          wx:if="{{item.imageUrl && !item.imageFailed}}"
+          class="cart-image"
+          src="{{item.imageUrl}}"
+          mode="aspectFill"
+          data-id="{{item.id}}"
+          catchtap="onItemTap"
+          binderror="onImageError"
+        />
+        <view wx:else class="cart-image image-placeholder">暂无图片</view>
+        <view class="cart-info">
+          <text class="cart-name">{{item.productName}}</text>
+          <text class="cart-spec">{{item.specName}}</text>
+          <view class="cart-meta">
+            <text class="cart-price">¥{{item.priceText}} / {{item.unit}}</text>
+            <text wx:if="{{!item.purchasable && item.unavailableReason}}" class="cart-reason">{{item.unavailableReason}}</text>
+          </view>
+          <view class="cart-bottom">
+            <view class="quantity-box">
+              <view class="quantity-btn" data-id="{{item.id}}" data-direction="-1" catchtap="onStepTap">-</view>
+              <input
+                class="quantity-input"
+                type="digit"
+                value="{{item.quantityText}}"
+                data-id="{{item.id}}"
+                catchtap="noop"
+                bindinput="onQuantityInput"
+                bindblur="onQuantityConfirm"
+                bindconfirm="onQuantityConfirm"
+              />
+              <view class="quantity-btn" data-id="{{item.id}}" data-direction="1" catchtap="onStepTap">+</view>
+            </view>
+            <text class="cart-amount">小计 ¥{{item.amountText}}</text>
+          </view>
+        </view>
+        <view class="delete-button" data-id="{{item.id}}" catchtap="onDeleteTap">删除</view>
+      </view>
+    </view>
+
+    <view class="bottom-bar">
+      <view class="all-select" bindtap="onToggleAll">
+        <view class="check-box">
+          <view wx:if="{{allSelected}}" class="check-dot">✓</view>
+        </view>
+        <text class="all-text">全选</text>
+      </view>
+      <view class="total-box">
+        <text class="total-label">合计</text>
+        <text class="total-price">¥{{totalText}}</text>
+      </view>
+      <button class="checkout-button {{checkoutDisabled ? 'checkout-button-disabled' : ''}}" disabled="{{checkoutDisabled}}" bindtap="onCheckoutTap">去结算({{selectedCount}})</button>
+    </view>
+  </block>
+</view>

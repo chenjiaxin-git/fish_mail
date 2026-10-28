@@ -57,6 +57,10 @@ Page({
     this.loadMoreProducts()
   },
 
+  onCartTap() {
+    wx.switchTab({ url: '/pages/cart/cart' })
+  },
+
   loadHome() {
     this.setData({ metaError: false, productsError: '' })
     return this.loadMeta().then(() => this.loadProducts(1, true))

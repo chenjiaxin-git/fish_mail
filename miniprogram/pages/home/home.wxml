@@ -96,4 +96,6 @@
     <view wx:if="{{products.length > 0 && loadingMore}}" class="load-more">正在加载更多...</view>
     <view wx:elif="{{products.length > 0 && !hasMore}}" class="load-more">没有更多了</view>
   </view>
+
+  <view class="cart-entry" bindtap="onCartTap">购物车</view>
 </view>

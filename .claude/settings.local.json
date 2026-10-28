@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(node -e ' *)",
-      "Bash(node --check pages/product-detail/product-detail.js)"
+      "Bash(node --check pages/product-detail/product-detail.js)",
+      "Bash(mvn -q compile -DskipTests)",
+      "Bash(docker --version)",
+      "Bash(docker info *)",
+      "Bash(mvn test *)",
+      "Bash(docker exec *)",
+      "Bash(docker run *)",
+      "Bash(echo \"remaining-without-3: $?\")",
+      "Bash(grep -v \"//\")",
+      "Bash(sed -n 25,75p /g/fishMall/backend/src/main/java/com/fishmall/cart/api/controller/CartController.java)",
+      "Bash(sed -n 24,70p /g/fishMall/backend/src/main/java/com/fishmall/user/api/controller/UserAddressController.java)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('app.json','utf8'\\)\\); console.log\\('app.json OK'\\)\")",
+      "Bash(node -e 'JSON.parse\\(require\\('\\\\''fs'\\\\''\\).readFileSync\\('\\\\''__TRACKED_VAR__'\\\\'','\\\\''utf8'\\\\''\\)\\)')"
     ]
   }
 }

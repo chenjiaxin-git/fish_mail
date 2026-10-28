@@ -237,6 +237,18 @@
   text-align: center;
 }
 
+.cart-button {
+  flex: 1;
+  height: 76rpx;
+  margin: 0;
+  border-radius: 16rpx;
+  background: #ffffff;
+  border: 1rpx solid #0b3b60;
+  color: #0b3b60;
+  font-size: 28rpx;
+  line-height: 74rpx;
+}
+
 .order-button {
   flex: 1;
   height: 76rpx;
@@ -248,8 +260,9 @@
   line-height: 76rpx;
 }
 
-.order-button-disabled {
+.action-button-disabled {
   background: #c7d0d8;
+  border-color: #c7d0d8;
   color: #ffffff;
 }
 

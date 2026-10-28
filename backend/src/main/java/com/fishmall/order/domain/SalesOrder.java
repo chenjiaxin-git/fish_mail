@@ -24,6 +24,7 @@ public class SalesOrder {
     private String cancelReason;
     private String refundStatus;
     private String refundReference;
+    private String idempotencyKey;
     private Long version;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -70,6 +71,8 @@ public class SalesOrder {
     public void setRefundStatus(String refundStatus) { this.refundStatus = refundStatus; }
     public String getRefundReference() { return refundReference; }
     public void setRefundReference(String refundReference) { this.refundReference = refundReference; }
+    public String getIdempotencyKey() { return idempotencyKey; }
+    public void setIdempotencyKey(String idempotencyKey) { this.idempotencyKey = idempotencyKey; }
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }
     public LocalDateTime getCreatedAt() { return createdAt; }

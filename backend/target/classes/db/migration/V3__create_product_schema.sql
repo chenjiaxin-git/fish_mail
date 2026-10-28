@@ -4,8 +4,8 @@ CREATE TABLE product_category (
     sort INT NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     deleted TINYINT(1) NOT NULL DEFAULT 0,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT uk_product_category_name UNIQUE (name),
     CONSTRAINT ck_product_category_status CHECK (status IN ('ACTIVE', 'DISABLED'))
 );
@@ -21,8 +21,8 @@ CREATE TABLE product (
     main_image_url VARCHAR(500) NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     deleted TINYINT(1) NOT NULL DEFAULT 0,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES product_category (id),
     CONSTRAINT ck_product_status CHECK (status IN ('ACTIVE', 'OFF_SHELF'))
 );
@@ -44,8 +44,8 @@ CREATE TABLE product_spec (
     warning_qty DECIMAL(12,3) NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     deleted TINYINT(1) NOT NULL DEFAULT 0,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_product_spec_product FOREIGN KEY (product_id) REFERENCES product (id),
     CONSTRAINT uk_product_spec_name UNIQUE (product_id, name),
     CONSTRAINT ck_product_spec_quantity_kind CHECK (quantity_kind IN ('PIECE', 'WEIGHT')),
@@ -73,7 +73,7 @@ CREATE TABLE product_stock_ledger (
     operator_type VARCHAR(20) NOT NULL,
     operator_id BIGINT NULL,
     biz_key VARCHAR(120) NOT NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_product_stock_ledger_spec FOREIGN KEY (product_spec_id) REFERENCES product_spec (id),
     CONSTRAINT uk_product_stock_ledger_biz_key UNIQUE (biz_key),
     CONSTRAINT ck_product_stock_ledger_change_type CHECK (change_type IN ('INITIAL', 'ADMIN_ADJUST', 'RESERVE', 'PAY_DEDUCT', 'RELEASE', 'REFUND_RELEASE'))
@@ -91,7 +91,7 @@ CREATE TABLE admin_operation_log (
     result VARCHAR(20) NOT NULL,
     reason VARCHAR(200) NULL,
     trace_id VARCHAR(64) NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
 );
 
 CREATE INDEX idx_admin_operation_log_created ON admin_operation_log (created_at);

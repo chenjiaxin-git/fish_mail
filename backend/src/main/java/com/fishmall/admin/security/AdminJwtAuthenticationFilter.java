@@ -40,6 +40,10 @@ public class AdminJwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        if (!request.getRequestURI().startsWith("/api/v1/admin/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String authorization = request.getHeader("Authorization");
         if (authorization != null && authorization.startsWith("Bearer ")) {
             try {

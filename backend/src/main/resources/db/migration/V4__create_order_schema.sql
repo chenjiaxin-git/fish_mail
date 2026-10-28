@@ -21,8 +21,8 @@ CREATE TABLE sales_order (
     refund_status VARCHAR(20) NOT NULL DEFAULT 'NONE',
     refund_reference VARCHAR(100) NULL,
     version BIGINT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT uk_sales_order_no UNIQUE (order_no),
     CONSTRAINT ck_sales_order_status CHECK (status IN ('CREATED', 'QUOTED', 'PENDING_PAYMENT', 'PAID_WAIT_DELIVERY', 'DELIVERING', 'COMPLETED', 'CANCELLED', 'CLOSED')),
     CONSTRAINT ck_sales_order_source CHECK (source IN ('MINI_PROGRAM', 'ADMIN')),
@@ -51,7 +51,7 @@ CREATE TABLE sales_order_item (
     estimated_amount_cent BIGINT NOT NULL,
     final_amount_cent BIGINT NULL,
     product_image_url VARCHAR(500) NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_sales_order_item_order FOREIGN KEY (order_id) REFERENCES sales_order (id),
     CONSTRAINT fk_sales_order_item_product FOREIGN KEY (product_id) REFERENCES product (id),
     CONSTRAINT fk_sales_order_item_spec FOREIGN KEY (product_spec_id) REFERENCES product_spec (id),
@@ -76,7 +76,7 @@ CREATE TABLE order_price_revision (
     items_snapshot JSON NOT NULL,
     adjusted_by_type VARCHAR(20) NOT NULL,
     adjusted_by_id BIGINT NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_order_price_revision_order FOREIGN KEY (order_id) REFERENCES sales_order (id),
     CONSTRAINT uk_order_price_revision_no UNIQUE (order_id, revision_no),
     CONSTRAINT ck_order_price_revision_type CHECK (adjusted_by_type IN ('USER', 'ADMIN', 'SYSTEM')),
@@ -96,8 +96,8 @@ CREATE TABLE payment_record (
     trade_state VARCHAR(30) NULL,
     notify_raw JSON NULL,
     paid_at TIMESTAMP(3) NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_payment_record_order FOREIGN KEY (order_id) REFERENCES sales_order (id),
     CONSTRAINT uk_payment_record_out_trade_no UNIQUE (out_trade_no),
     CONSTRAINT uk_payment_record_transaction_id UNIQUE (transaction_id),
@@ -116,7 +116,7 @@ CREATE TABLE order_status_log (
     operator_id BIGINT NULL,
     reason VARCHAR(500) NULL,
     source VARCHAR(30) NOT NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_order_status_log_order FOREIGN KEY (order_id) REFERENCES sales_order (id),
     CONSTRAINT ck_order_status_log_operator CHECK (operator_type IN ('USER', 'ADMIN', 'SYSTEM', 'PAYMENT'))
 );
@@ -133,7 +133,7 @@ CREATE TABLE message_log (
     response_json JSON NULL,
     state VARCHAR(20) NOT NULL,
     error_message VARCHAR(500) NULL,
-    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     CONSTRAINT fk_message_log_order FOREIGN KEY (order_id) REFERENCES sales_order (id)
 );
 

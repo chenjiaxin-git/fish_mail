@@ -65,3 +65,21 @@
 - 首页商品卡片和轮播图 `PRODUCT` 跳转接入商品详情页；小程序统一使用 `resolveImageUrl` 补全商品与轮播图相对图片 URL。
 - 新增公开详情 Service/Controller 回归测试（成功、不存在、下架、非法 id、空规格），后端测试共 39 个通过；小程序 JS 语法与格式化/数量边界校验通过。
 
+## 2026-10-28
+
+### miniprogram_cart_order_sign
+
+- 新增 V6 用户域迁移：`wx_user`、`user_address`、`cart_item` 三表，`sales_order` 补充 `idempotency_key` 幂等列（`(wx_user_id, idempotency_key)` 唯一，手工单为 NULL）。
+- 实现微信登录 `POST /api/v1/auth/wechat`：`WeChatAuthClient` Port 提供真实 code2Session 与 Fake 双实现（未配置 `WECHAT_APPID/SECRET` 时 Fake 仅限本地），按 openid upsert `wx_user`，签发 7 天用户 JWT，与管理员 Token 按 `tokenType` 互相隔离。
+- 实现用户鉴权过滤器保护 `/api/v1/addresses/**`、`/api/v1/cart/**`、`/api/v1/orders/**`、`/api/v1/users/**`，`wxUserId` 只从 Token 获取；新增 `GET /api/v1/users/me` 供探测登录态。
+- 实现地址管理 API：列表（默认在前）、新增、编辑、软删除，每用户上限 20 条（`ADDRESS_LIMIT_EXCEEDED`），`isDefault` 同事务互斥，越权统一 `ADDRESS_NOT_FOUND`。
+- 实现购物车 API：列表实时回填价格/库存/可购状态（含 `minQuantity`/`stepQuantity` 步进约束），加购同规格合并累加，修改数量、删除；数量走 `QuantityRules` 网格校验，超库存 `STOCK_INSUFFICIENT`，下架 `PRODUCT_NOT_AVAILABLE`。
+- 实现创建预订单 `POST /api/v1/orders`：单事务校验地址归属、商品可售、数量网格，条件更新预占 `reserved_qty` 并写 `RESERVE` 流水（`biz_key` 唯一兜底），订单项与地址快照落库，写 CREATED 状态日志，同事务按 `cartItemIds` 清理购物车；`(wx_user_id, idempotency_key)` 幂等重放返回首次订单；事务隔离级别 READ_COMMITTED，消除幂等查询间隙锁并发插入死锁。
+- 新增 `MoneyCalculator` 金额乘法/合计统一入口与 `OrderAction.CREATE` 状态机入口动作；订单号 `FM+yyyyMMdd+6 位序列`，唯一冲突自动重试。
+- 新增登录、Token 隔离、地址、购物车、下单成功/失败/幂等重放/库存并发抢购（Testcontainers MySQL）回归测试，后端测试共 75 个通过。
+- 小程序新增 `services/cart.js`、`services/address.js`、`services/order.js`，新增 tabBar（首页、购物车）常驻底部导航。
+- 新增购物车页：勾选/数量步进（与详情页同网格约束）/删除/全选/合计/去结算，失效条目置灰不可勾选并显示中文原因，空态、失败重试与防重复请求。
+- 新增结算页：地址选择（默认优先）、只读商品清单、“预估金额以商家称重为准”提示、备注 500 字计数截断、进入页面生成 uuid 幂等键防重复提交，成功 toast“下单成功，等待商家确认”后回首页；`STOCK_INSUFFICIENT`/`PRODUCT_NOT_AVAILABLE`/`ADDRESS_NOT_FOUND` 中文提示并刷新对应区域。
+- 新增地址管理页（列表/新增/编辑/删除、上限 20 置灰提示、默认地址开关、删除确认、结算页选择模式回填）。
+- 商品详情页底部栏改为“加入购物车”+“立即下单”（立即购买直达结算页、`cartItemIds=[]`），售罄/不足起购量统一禁用；首页新增购物车入口；未登录操作先 `ensureLogin()`。
+- 小程序全部 JS 通过 Node 语法检查、JSON 配置校验；微信开发者工具手测清单覆盖加购合并、步进边界、失效置灰、勾选合计、选地址、备注截断、防重复提交与失败恢复。

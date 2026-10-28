@@ -336,3 +336,20 @@
     transform: rotate(360deg);
   }
 }
+
+.cart-entry {
+  position: fixed;
+  right: 24rpx;
+  bottom: calc(40rpx + env(safe-area-inset-bottom));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 76rpx;
+  padding: 0 28rpx;
+  border-radius: 999rpx;
+  background: #0b3b60;
+  color: #ffffff;
+  font-size: 26rpx;
+  box-shadow: 0 8rpx 20rpx rgba(11, 59, 96, 0.25);
+}

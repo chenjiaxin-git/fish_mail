@@ -1,0 +1,77 @@
+<view class="page-shell">
+  <view wx:if="{{paramError}}" class="state-panel error-panel">
+    <text class="state-title">无法结算</text>
+    <text class="state-message">{{paramError}}</text>
+    <button class="retry-button" bindtap="onRetryTap">返回</button>
+  </view>
+
+  <block wx:else>
+    <view class="section address-section {{address ? '' : 'address-section-empty'}}" bindtap="onAddressTap">
+      <block wx:if="{{address}}">
+        <view class="address-head">
+          <text class="address-name">{{address.contactName}}</text>
+          <text class="address-phone">{{address.phone}}</text>
+          <text wx:if="{{address.isDefault}}" class="default-tag">默认</text>
+        </view>
+        <text class="address-detail">{{address.detailAddress}}</text>
+      </block>
+      <block wx:else>
+        <text class="address-empty-title">{{addressError || '请先添加收货地址'}}</text>
+        <text class="address-empty-hint">点击选择收货地址</text>
+      </block>
+      <text class="address-arrow">›</text>
+    </view>
+
+    <button wx:if="{{!address}}" class="add-address-button" bindtap="onAddAddressTap">新增收货地址</button>
+
+    <view class="tip-bar">预估金额，以商家实际称重后为准</view>
+
+    <view class="section">
+      <view class="section-heading">
+        <text class="section-title">商品清单</text>
+      </view>
+      <view class="item-list">
+        <view class="item-card" wx:for="{{items}}" wx:key="productSpecId">
+          <image wx:if="{{item.imageUrl}}" class="item-image" src="{{item.imageUrl}}" mode="aspectFill" />
+          <view wx:else class="item-image image-placeholder">暂无图片</view>
+          <view class="item-info">
+            <text class="item-name">{{item.productName}}</text>
+            <text class="item-spec">{{item.specName}}</text>
+            <view class="item-meta">
+              <text class="item-price">¥{{item.priceText}} / {{item.unit}}</text>
+              <text class="item-quantity">× {{item.quantityText}}</text>
+            </view>
+          </view>
+          <text class="item-amount">¥{{item.amountText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-heading">
+        <text class="section-title">收货备注</text>
+        <text class="section-subtitle">{{remarkLength}}/500</text>
+      </view>
+      <textarea
+        class="remark-input"
+        value="{{remark}}"
+        maxlength="500"
+        placeholder="选填，例如：去鳞，切块"
+        placeholder-class="remark-placeholder"
+        bindinput="onRemarkInput"
+      />
+    </view>
+
+    <view class="submit-bar">
+      <view class="submit-total">
+        <text class="submit-total-label">预估合计</text>
+        <text class="submit-total-price">¥{{totalText}}</text>
+      </view>
+      <button
+        class="submit-button {{submitting || !ready || !address ? 'submit-button-disabled' : ''}}"
+        disabled="{{submitting || !ready || !address}}"
+        bindtap="onSubmitTap"
+      >{{submitText}}</button>
+    </view>
+  </block>
+</view>

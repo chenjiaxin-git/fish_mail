@@ -59,6 +59,11 @@ public interface ProductSpecMapper {
             + "where id = #{specId} and reserved_qty >= #{quantity}")
     int releaseReserved(@Param("specId") Long specId, @Param("quantity") BigDecimal quantity);
 
+    @Update("update product_spec set reserved_qty = reserved_qty + #{quantity}, updated_at = current_timestamp "
+            + "where id = #{specId} and status = 'ACTIVE' and deleted = 0 "
+            + "and physical_stock_qty - reserved_qty >= #{quantity}")
+    int reserve(@Param("specId") Long specId, @Param("quantity") BigDecimal quantity);
+
     @Update("update product_spec set physical_stock_qty = physical_stock_qty + #{quantity}, updated_at = current_timestamp "
             + "where id = #{specId} and physical_stock_qty + #{quantity} >= reserved_qty")
     int restorePhysical(@Param("specId") Long specId, @Param("quantity") BigDecimal quantity);

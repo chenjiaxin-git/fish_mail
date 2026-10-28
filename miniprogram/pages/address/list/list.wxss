@@ -1,0 +1,158 @@
+.page-shell {
+  min-height: 100vh;
+  padding: 24rpx 24rpx 160rpx;
+}
+
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.address-card {
+  position: relative;
+  padding: 24rpx;
+  border: 1rpx solid #e6edf2;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+
+.address-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.address-name {
+  color: #1f2937;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.address-phone {
+  color: #536575;
+  font-size: 26rpx;
+}
+
+.default-tag {
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background: #e8f0e9;
+  color: #4b8b70;
+  font-size: 20rpx;
+}
+
+.address-detail {
+  display: block;
+  margin-top: 12rpx;
+  color: #536575;
+  font-size: 26rpx;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.address-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 28rpx;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f4f7;
+}
+
+.action-button {
+  padding: 6rpx 18rpx;
+  border-radius: 10rpx;
+  background: #f2f5f8;
+  color: #536575;
+  font-size: 24rpx;
+}
+
+.action-danger {
+  background: #fbeeec;
+  color: #b5523e;
+}
+
+.add-button {
+  height: 80rpx;
+  margin-top: 32rpx;
+  border-radius: 16rpx;
+  background: #0b3b60;
+  color: #ffffff;
+  font-size: 28rpx;
+  line-height: 80rpx;
+}
+
+.add-button-disabled {
+  background: #c7d0d8;
+  color: #ffffff;
+}
+
+.state-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 420rpx;
+  padding: 32rpx;
+  border: 1rpx solid #e6edf2;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+
+.state-title {
+  color: #0b3b60;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.state-message {
+  margin-top: 12rpx;
+  color: #8b9aa7;
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.error-panel .state-title {
+  color: #c95b46;
+}
+
+.retry-button {
+  height: 76rpx;
+  margin-top: 24rpx;
+  padding: 0 28rpx;
+  border-radius: 16rpx;
+  background: #0b3b60;
+  color: #ffffff;
+  font-size: 28rpx;
+  line-height: 76rpx;
+}
+
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  margin-bottom: 18rpx;
+  border-radius: 50%;
+  background: #eef3f6;
+  color: #8b9aa7;
+  font-size: 30rpx;
+}
+
+.loading-dot {
+  width: 28rpx;
+  height: 28rpx;
+  border: 4rpx solid #dce5ed;
+  border-top-color: #0b3b60;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

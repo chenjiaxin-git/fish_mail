@@ -80,6 +80,7 @@
       />
       <view class="quantity-btn" bindtap="onQuantityPlus">+</view>
     </view>
-    <button class="order-button {{orderDisabled ? 'order-button-disabled' : ''}}" disabled="{{orderDisabled}}" bindtap="onOrderTap">{{orderText}}</button>
+    <button class="cart-button {{orderDisabled ? 'action-button-disabled' : ''}}" disabled="{{orderDisabled}}" bindtap="onCartTap">加入购物车</button>
+    <button class="order-button {{orderDisabled ? 'action-button-disabled' : ''}}" disabled="{{orderDisabled}}" bindtap="onOrderTap">{{orderText}}</button>
   </view>
 </view>

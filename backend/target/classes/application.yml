@@ -1,5 +1,5 @@
 server:
-  port: \${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8080}
   error:
     include-message: never
     include-stacktrace: never
@@ -8,9 +8,9 @@ spring:
   application:
     name: fishmall-backend
   datasource:
-    url: \${MYSQL_URL:jdbc:mysql://localhost:3306/fishmall?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
-    username: \${MYSQL_USER:root}
-    password: \${MYSQL_PASSWORD:}
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/fishmall?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   flyway:
     enabled: true
@@ -36,10 +36,18 @@ order:
   payment-timeout-minutes: ${ORDER_PAYMENT_TIMEOUT_MINUTES:60}
 
 admin:
-  username: \${ADMIN_USERNAME:admin}
-  initial-password: \${ADMIN_INITIAL_PASSWORD:}
-  jwt-secret: \${JWT_SECRET:}
-  token-ttl-seconds: \${ADMIN_TOKEN_TTL_SECONDS:28800}
+  username: ${ADMIN_USERNAME:admin}
+  initial-password: ${ADMIN_INITIAL_PASSWORD:}
+  jwt-secret: ${JWT_SECRET:}
+  token-ttl-seconds: ${ADMIN_TOKEN_TTL_SECONDS:28800}
+
+user:
+  jwt-secret: ${JWT_USER_SECRET:}
+  token-ttl-seconds: ${USER_TOKEN_TTL_SECONDS:604800}
+
+wechat:
+  app-id: ${WECHAT_APPID:}
+  app-secret: ${WECHAT_SECRET:}
 
 management:
   endpoints:

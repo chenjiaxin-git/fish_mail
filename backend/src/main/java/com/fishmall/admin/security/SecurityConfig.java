@@ -3,6 +3,7 @@ package com.fishmall.admin.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fishmall.common.ApiResponse;
 import com.fishmall.common.TraceIdFilter;
+import com.fishmall.user.security.UserJwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             AdminJwtAuthenticationFilter adminJwtAuthenticationFilter,
+            UserJwtAuthenticationFilter userJwtAuthenticationFilter,
             ObjectMapper objectMapper
     ) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -37,9 +39,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/admin/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers("/api/v1/admin/**").authenticated()
+                        .requestMatchers("/api/v1/addresses/**", "/api/v1/cart/**", "/api/v1/orders/**", "/api/v1/users/**")
+                        .authenticated()
                         .anyRequest().permitAll())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedEntryPoint(objectMapper)))
-                .addFilterBefore(adminJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(adminJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(userJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

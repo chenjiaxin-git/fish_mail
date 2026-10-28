@@ -28,6 +28,10 @@ public final class OrderStateMachine {
         }
     }
 
+    public static OrderStatus validateCreate() {
+        return OrderStatus.CREATED;
+    }
+
     public static boolean isPaid(OrderStatus status) {
         return status == OrderStatus.PAID_WAIT_DELIVERY || status == OrderStatus.DELIVERING
                 || status == OrderStatus.COMPLETED;
