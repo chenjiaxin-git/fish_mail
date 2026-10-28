@@ -21,4 +21,8 @@ function getProducts(params) {
   return request({ url: '/api/v1/products?' + parts.join('&'), method: 'GET' })
 }
 
-module.exports = { getBanners, getCategories, getProducts }
+function getProductDetail(id) {
+  return request({ url: '/api/v1/products/' + encodeURIComponent(id), method: 'GET' })
+}
+
+module.exports = { getBanners, getCategories, getProducts, getProductDetail }

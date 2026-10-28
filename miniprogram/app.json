@@ -1,6 +1,7 @@
 {
   "pages": [
-    "pages/home/home"
+    "pages/home/home",
+    "pages/product-detail/product-detail"
   ],
   "window": {
     "navigationBarTitleText": "鲜鱼到家",

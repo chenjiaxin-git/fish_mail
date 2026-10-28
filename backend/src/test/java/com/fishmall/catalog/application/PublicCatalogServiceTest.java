@@ -3,6 +3,7 @@ package com.fishmall.catalog.application;
 import com.fishmall.catalog.api.vo.BannerResponse;
 import com.fishmall.catalog.api.vo.PageResponse;
 import com.fishmall.catalog.api.vo.PublicCategoryResponse;
+import com.fishmall.catalog.api.vo.PublicProductDetailResponse;
 import com.fishmall.catalog.api.vo.PublicProductListResponse;
 import com.fishmall.catalog.application.service.PublicCatalogService;
 import com.fishmall.catalog.domain.Product;
@@ -22,7 +23,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -124,6 +127,80 @@ class PublicCatalogServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(exception -> ((BusinessException) exception).errorCode())
                 .isEqualTo(ErrorCode.VALIDATION_ERROR);
+    }
+
+    @Test
+    void productDetailReturnsDescriptionSpecsAndAvailableStock() {
+        Product product = new Product();
+        product.setId(10L);
+        product.setCategoryId(1L);
+        product.setName("草鱼");
+        product.setSubtitle("鲜活");
+        product.setDescription("适合清蒸、红烧");
+        product.setMainImageUrl("/uploads/products/10.jpg");
+        product.setStatus("ACTIVE");
+        ProductSpec first = spec(20L, 10L, 3000L, new BigDecimal("3.500"), new BigDecimal("1.500"));
+        ProductSpec second = spec(21L, 10L, 4500L, new BigDecimal("2.000"), BigDecimal.ZERO);
+        ProductCategory category = new ProductCategory();
+        category.setId(1L);
+        category.setName("淡水鱼");
+
+        when(productMapper.findActiveById(10L)).thenReturn(Optional.of(product));
+        when(specMapper.findActiveByProductIds(List.of(10L))).thenReturn(List.of(first, second));
+        when(categoryMapper.findAllByIds(List.of(1L))).thenReturn(List.of(category));
+
+        PublicProductDetailResponse result = service.productDetail(10L);
+
+        assertThat(result.description()).isEqualTo("适合清蒸、红烧");
+        assertThat(result.categoryName()).isEqualTo("淡水鱼");
+        assertThat(result.minPriceCent()).isEqualTo(3000L);
+        assertThat(result.maxPriceCent()).isEqualTo(4500L);
+        assertThat(result.totalAvailableQty()).isEqualByComparingTo(new BigDecimal("4.000"));
+        assertThat(result.specs()).hasSize(2);
+        assertThat(result.specs().get(0).availableQty()).isEqualByComparingTo(new BigDecimal("2.000"));
+    }
+
+    @Test
+    void productDetailRejectsMissingOffShelfAndInvalidId() {
+        when(productMapper.findActiveById(99L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.productDetail(99L))
+                .isInstanceOf(BusinessException.class)
+                .extracting(exception -> ((BusinessException) exception).errorCode())
+                .isEqualTo(ErrorCode.PRODUCT_NOT_FOUND);
+
+        Product offShelf = new Product();
+        offShelf.setId(11L);
+        offShelf.setStatus("OFF_SHELF");
+        when(productMapper.findActiveById(11L)).thenReturn(Optional.of(offShelf));
+        assertThatThrownBy(() -> service.productDetail(11L))
+                .isInstanceOf(BusinessException.class)
+                .extracting(exception -> ((BusinessException) exception).errorCode())
+                .isEqualTo(ErrorCode.PRODUCT_NOT_FOUND);
+
+        assertThatThrownBy(() -> service.productDetail(0L))
+                .isInstanceOf(BusinessException.class)
+                .extracting(exception -> ((BusinessException) exception).errorCode())
+                .isEqualTo(ErrorCode.VALIDATION_ERROR);
+    }
+
+    @Test
+    void productDetailAllowsEmptySpecs() {
+        Product product = new Product();
+        product.setId(10L);
+        product.setCategoryId(1L);
+        product.setName("草鱼");
+        product.setStatus("ACTIVE");
+        when(productMapper.findActiveById(10L)).thenReturn(Optional.of(product));
+        when(specMapper.findActiveByProductIds(List.of(10L))).thenReturn(Collections.emptyList());
+        when(categoryMapper.findAllByIds(List.of(1L))).thenReturn(Collections.emptyList());
+
+        PublicProductDetailResponse result = service.productDetail(10L);
+
+        assertThat(result.specs()).isEmpty();
+        assertThat(result.minPriceCent()).isNull();
+        assertThat(result.maxPriceCent()).isNull();
+        assertThat(result.categoryName()).isNull();
+        assertThat(result.totalAvailableQty()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     private ProductSpec spec(Long id, Long productId, Long priceCent, BigDecimal physical, BigDecimal reserved) {

@@ -1,3 +1,5 @@
+const config = require('../config')
+
 function toFiniteNumber(value) {
   if (value === null || value === undefined || value === '') return null
   const number = Number(value)
@@ -33,4 +35,12 @@ function formatPriceRange(minPriceCent, maxPriceCent) {
   return min === max ? min : min + ' - ' + max
 }
 
-module.exports = { formatMoneyCent, formatQuantity, formatDate, formatPriceRange }
+function resolveImageUrl(url) {
+  if (!url) return ''
+  const value = String(url)
+  if (/^https?:\/\//i.test(value)) return value
+  if (value.indexOf('/') === 0) return config.apiBaseUrl.replace(/\/$/, '') + value
+  return value
+}
+
+module.exports = { formatMoneyCent, formatQuantity, formatDate, formatPriceRange, resolveImageUrl }

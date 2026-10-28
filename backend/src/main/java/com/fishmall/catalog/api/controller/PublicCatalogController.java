@@ -3,12 +3,14 @@ package com.fishmall.catalog.api.controller;
 import com.fishmall.catalog.api.vo.BannerResponse;
 import com.fishmall.catalog.api.vo.PageResponse;
 import com.fishmall.catalog.api.vo.PublicCategoryResponse;
+import com.fishmall.catalog.api.vo.PublicProductDetailResponse;
 import com.fishmall.catalog.api.vo.PublicProductListResponse;
 import com.fishmall.catalog.application.service.PublicCatalogService;
 import com.fishmall.common.ApiResponse;
 import com.fishmall.common.TraceIdFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +45,11 @@ public class PublicCatalogController {
             HttpServletRequest request
     ) {
         return ApiResponse.success(catalogService.products(keyword, categoryId, page, pageSize), traceId(request));
+    }
+
+    @GetMapping("/products/{id}")
+    public ApiResponse<PublicProductDetailResponse> productDetail(@PathVariable Long id, HttpServletRequest request) {
+        return ApiResponse.success(catalogService.productDetail(id), traceId(request));
     }
 
     private String traceId(HttpServletRequest request) {

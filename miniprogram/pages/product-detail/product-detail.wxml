@@ -1,0 +1,85 @@
+<view class="page-shell">
+  <view wx:if="{{loading}}" class="state-panel">
+    <view class="loading-dot"></view>
+    <text class="state-message">正在加载商品...</text>
+  </view>
+
+  <view wx:elif="{{notFound}}" class="state-panel empty-panel">
+    <view class="empty-icon">鱼</view>
+    <text class="state-title">商品不存在或已下架</text>
+    <text class="state-message">看看其他新鲜水产吧</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state-panel error-panel">
+    <text class="state-title">商品加载失败</text>
+    <text class="state-message">{{error}}</text>
+    <button class="retry-button" bindtap="onRetryTap">重试</button>
+  </view>
+
+  <block wx:else>
+    <view class="image-wrap">
+      <image wx:if="{{product.mainImageUrl && !imageFailed}}" class="product-image" src="{{product.mainImageUrl}}" mode="aspectFill" binderror="onImageError" />
+      <view wx:else class="image-placeholder">{{imageFailed ? '图片加载失败' : '暂无图片'}}</view>
+    </view>
+
+    <view class="info-card">
+      <view class="price-row">
+        <text class="price-text">¥{{product.priceText}}</text>
+        <text class="total-stock">可用库存 {{product.stockText}}</text>
+      </view>
+      <text class="product-name">{{product.name}}</text>
+      <text wx:if="{{product.subtitle}}" class="product-subtitle">{{product.subtitle}}</text>
+      <text wx:if="{{product.categoryName}}" class="product-category">{{product.categoryName}}</text>
+    </view>
+
+    <view class="section">
+      <view class="section-heading">
+        <text class="section-title">规格</text>
+        <text class="section-subtitle">选择规格查看单价和库存</text>
+      </view>
+      <view wx:if="{{specs.length > 0}}" class="spec-list">
+        <view
+          wx:for="{{specs}}"
+          wx:key="id"
+          class="spec-card {{selectedSpecIndex === index ? 'spec-card-active' : ''}} {{item.soldOut ? 'spec-card-sold-out' : ''}}"
+          data-index="{{index}}"
+          bindtap="onSpecTap"
+        >
+          <view class="spec-head">
+            <text class="spec-name">{{item.name}}</text>
+            <text wx:if="{{item.soldOut}}" class="spec-sold-out">已售罄</text>
+          </view>
+          <text class="spec-kind">{{item.kindText}} · {{item.unit}}</text>
+          <view class="spec-meta">
+            <text class="spec-price">¥{{item.priceText}} / {{item.unit}}</text>
+            <text class="spec-stock">可用库存 {{item.stockText}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="empty-spec">暂无可售规格</view>
+    </view>
+
+    <view wx:if="{{product.description}}" class="section">
+      <view class="section-heading">
+        <text class="section-title">商品简介</text>
+      </view>
+      <text class="desc-text">{{product.description}}</text>
+    </view>
+  </block>
+
+  <view wx:if="{{!loading && !error && !notFound}}" class="bottom-bar">
+    <view class="quantity-box">
+      <view class="quantity-btn" bindtap="onQuantityMinus">-</view>
+      <input
+        class="quantity-input"
+        type="digit"
+        value="{{quantityText}}"
+        bindinput="onQuantityInput"
+        bindblur="onQuantityConfirm"
+        bindconfirm="onQuantityConfirm"
+      />
+      <view class="quantity-btn" bindtap="onQuantityPlus">+</view>
+    </view>
+    <button class="order-button {{orderDisabled ? 'order-button-disabled' : ''}}" disabled="{{orderDisabled}}" bindtap="onOrderTap">{{orderText}}</button>
+  </view>
+</view>

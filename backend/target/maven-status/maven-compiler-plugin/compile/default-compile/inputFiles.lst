@@ -30,6 +30,7 @@ G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\ProductDetailRespo
 G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\ProductListResponse.java
 G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\ProductSpecResponse.java
 G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\PublicCategoryResponse.java
+G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\PublicProductDetailResponse.java
 G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\PublicProductListResponse.java
 G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\PublicProductSpecResponse.java
 G:\fishMall\backend\src\main\java\com\fishmall\catalog\api\vo\StockAdjustResponse.java

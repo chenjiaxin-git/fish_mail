@@ -76,7 +76,7 @@
     </view>
 
     <view wx:else class="product-grid">
-      <view class="product-card" wx:for="{{products}}" wx:key="id" bindtap="onProductTap">
+      <view class="product-card" wx:for="{{products}}" wx:key="id" data-id="{{item.id}}" bindtap="onProductTap">
         <view class="product-image-wrap">
           <image wx:if="{{item.mainImageUrl && !item.imageFailed}}" class="product-image" src="{{item.mainImageUrl}}" mode="aspectFill" binderror="onProductImageError" data-index="{{index}}" />
           <view wx:else class="image-placeholder product-placeholder">{{item.imageFailed ? '图片加载失败' : '暂无图片'}}</view>

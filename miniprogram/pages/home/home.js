@@ -1,5 +1,5 @@
 const catalog = require('../../services/catalog')
-const { formatPriceRange, formatQuantity } = require('../../utils/format')
+const { formatPriceRange, formatQuantity, resolveImageUrl } = require('../../utils/format')
 
 const PAGE_SIZE = 20
 const MAX_KEYWORD_LENGTH = 100
@@ -9,16 +9,18 @@ function normalizeBanner(item) {
   const targetType = banner.targetType || banner.jumpType || banner.linkType || banner.type || 'NONE'
   const targetId = banner.categoryId || banner.targetCategoryId || banner.targetId || banner.jumpTargetId || null
   return Object.assign({}, banner, {
-    imageUrl: banner.imageUrl || banner.mainImageUrl || banner.url || '',
+    imageUrl: resolveImageUrl(banner.imageUrl || banner.mainImageUrl || banner.url || ''),
     imageFailed: false,
     targetType,
-    categoryId: targetType === 'CATEGORY' ? targetId : null
+    categoryId: targetType === 'CATEGORY' ? targetId : null,
+    productId: targetType === 'PRODUCT' ? targetId : null
   })
 }
 
 function normalizeProduct(item) {
   const product = item || {}
   return Object.assign({}, product, {
+    mainImageUrl: resolveImageUrl(product.mainImageUrl),
     imageFailed: false,
     priceText: formatPriceRange(product.minPriceCent, product.maxPriceCent),
     stockText: formatQuantity(product.totalAvailableQty)
@@ -167,7 +169,10 @@ Page({
       return
     }
     if (type === 'PRODUCT') {
-      wx.showToast({ title: '商品详情暂未开放', icon: 'none' })
+      const productId = Number(banner.productId)
+      if (banner.productId !== null && banner.productId !== undefined && Number.isFinite(productId)) {
+        wx.navigateTo({ url: '/pages/product-detail/product-detail?id=' + productId })
+      }
     }
   },
 
@@ -181,8 +186,10 @@ Page({
     this.setData({ ['products[' + index + '].imageFailed']: true })
   },
 
-  onProductTap() {
-    wx.showToast({ title: '商品详情暂未开放', icon: 'none' })
+  onProductTap(event) {
+    const id = Number(event.currentTarget.dataset.id)
+    if (!Number.isFinite(id) || id <= 0) return
+    wx.navigateTo({ url: '/pages/product-detail/product-detail?id=' + id })
   },
 
   onRetryTap() {

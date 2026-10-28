@@ -3,6 +3,7 @@ package com.fishmall.catalog.application.service;
 import com.fishmall.catalog.api.vo.BannerResponse;
 import com.fishmall.catalog.api.vo.PageResponse;
 import com.fishmall.catalog.api.vo.PublicCategoryResponse;
+import com.fishmall.catalog.api.vo.PublicProductDetailResponse;
 import com.fishmall.catalog.api.vo.PublicProductListResponse;
 import com.fishmall.catalog.api.vo.PublicProductSpecResponse;
 import com.fishmall.catalog.domain.Product;
@@ -92,6 +93,24 @@ public class PublicCatalogService {
         return new PageResponse<>(total, page, pageSize, items);
     }
 
+    @Transactional(readOnly = true)
+    public PublicProductDetailResponse productDetail(Long id) {
+        if (id == null || id < 1) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR, "商品参数不合法");
+        }
+        Product product = productMapper.findActiveById(id)
+                .filter(item -> PRODUCT_STATUS_ACTIVE.equals(item.getStatus()))
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        List<ProductSpec> specs = specMapper.findActiveByProductIds(List.of(product.getId()));
+        ProductCategory category = categoryMapper.findAllByIds(List.of(product.getCategoryId())).stream()
+                .findFirst().orElse(null);
+        SpecAggregate aggregate = aggregateSpecs(specs);
+        return new PublicProductDetailResponse(product.getId(), product.getCategoryId(),
+                category == null ? null : category.getName(), product.getName(), product.getSubtitle(),
+                product.getDescription(), product.getMainImageUrl(), aggregate.minPriceCent(),
+                aggregate.maxPriceCent(), aggregate.totalAvailableQty(), aggregate.specs());
+    }
+
     private BannerResponse toBannerResponse(ShopBanner banner) {
         return new BannerResponse(banner.getId(), banner.getTitle(), banner.getImageUrl(), banner.getJumpType(),
                 banner.getJumpTargetId(), banner.getSort());
@@ -106,6 +125,22 @@ public class PublicCatalogService {
             List<ProductSpec> specs,
             ProductCategory category
     ) {
+        SpecAggregate aggregate = aggregateSpecs(specs);
+        return new PublicProductListResponse(product.getId(), product.getCategoryId(),
+                category == null ? null : category.getName(), product.getName(), product.getSubtitle(),
+                product.getMainImageUrl(), aggregate.minPriceCent(), aggregate.maxPriceCent(),
+                aggregate.totalAvailableQty(), aggregate.specs());
+    }
+
+    private record SpecAggregate(
+            Long minPriceCent,
+            Long maxPriceCent,
+            BigDecimal totalAvailableQty,
+            List<PublicProductSpecResponse> specs
+    ) {
+    }
+
+    private SpecAggregate aggregateSpecs(List<ProductSpec> specs) {
         Long minPriceCent = null;
         Long maxPriceCent = null;
         BigDecimal totalAvailableQty = BigDecimal.ZERO;
@@ -119,9 +154,7 @@ public class PublicCatalogService {
                     spec.getQuantityKind(), spec.getUnit(), spec.getPriceCent(), spec.getMinQuantity(),
                     spec.getStepQuantity(), availableQty));
         }
-        return new PublicProductListResponse(product.getId(), product.getCategoryId(),
-                category == null ? null : category.getName(), product.getName(), product.getSubtitle(),
-                product.getMainImageUrl(), minPriceCent, maxPriceCent, totalAvailableQty, specResponses);
+        return new SpecAggregate(minPriceCent, maxPriceCent, totalAvailableQty, specResponses);
     }
 
     private String normalizeKeyword(String keyword) {
