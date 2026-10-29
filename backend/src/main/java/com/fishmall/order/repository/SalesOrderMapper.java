@@ -14,6 +14,58 @@ import java.util.Optional;
 
 @Mapper
 public interface SalesOrderMapper {
+    String TIMEOUT_DUE = " ((status='CREATED' and created_at &lt;= #{createdCutoff}) "
+            + "or (status in ('QUOTED','PENDING_PAYMENT') and pay_deadline_at &lt;= #{now})) ";
+
+    @Select("<script>select * from sales_order where id &gt; #{afterId} and " + TIMEOUT_DUE
+            + "and (timeout_next_attempt_at is null or timeout_next_attempt_at &lt;= #{now}) order by id asc limit #{limit}</script>")
+    List<SalesOrder> timeoutCandidates(@Param("afterId") long afterId, @Param("now") LocalDateTime now,
+                                       @Param("createdCutoff") LocalDateTime createdCutoff, @Param("limit") int limit);
+
+    @Update("<script>update sales_order set status='CLOSED',closed_at=#{now},version=version+1,"
+            + "timeout_next_attempt_at=null,updated_at=current_timestamp(3) where id=#{id} and version=#{version} "
+            + "and status=#{status} and " + TIMEOUT_DUE + "</script>")
+    int closeTimedOut(@Param("id") Long id, @Param("version") Long version, @Param("status") String status,
+                       @Param("now") LocalDateTime now, @Param("createdCutoff") LocalDateTime createdCutoff);
+
+    @Update("<script>update sales_order set timeout_next_attempt_at=#{next},timeout_attempt_count=least(timeout_attempt_count+1,32) "
+            + "where id=#{id} and version=#{version} and status=#{status} and " + TIMEOUT_DUE + "</script>")
+    int retryTimeout(@Param("id") Long id, @Param("version") Long version, @Param("status") String status,
+                      @Param("now") LocalDateTime now, @Param("createdCutoff") LocalDateTime createdCutoff,
+                      @Param("next") LocalDateTime next);
+    @Update("update sales_order set status='PAID_WAIT_DELIVERY',paid_at=#{paidAt},version=version+1,updated_at=current_timestamp(3) "
+            + "where id=#{id} and status='PENDING_PAYMENT' and version=#{version}")
+    int markPaid(@Param("id") Long id, @Param("version") Long version, @Param("paidAt") LocalDateTime paidAt);
+    @Select("select * from sales_order where id = #{id} and wx_user_id = #{userId}")
+    Optional<SalesOrder> findByUser(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Select("select * from sales_order where id = #{id} and wx_user_id = #{userId} for update")
+    Optional<SalesOrder> findByUserForUpdate(@Param("id") Long id, @Param("userId") Long userId);
+
+    String USER_FILTER = " where wx_user_id = #{userId} <if test='statuses.size() > 0'> and status in "
+            + "<foreach collection='statuses' item='s' open='(' separator=',' close=')'>#{s}</foreach></if> ";
+
+    @Select("<script>select * from sales_order" + USER_FILTER
+            + "order by created_at desc, id desc limit #{offset}, #{limit}</script>")
+    List<SalesOrder> selectUserPage(@Param("userId") Long userId, @Param("statuses") List<String> statuses,
+                                    @Param("offset") int offset, @Param("limit") int limit);
+
+    @Select("<script>select count(*) from sales_order" + USER_FILTER + "</script>")
+    long countUser(@Param("userId") Long userId, @Param("statuses") List<String> statuses);
+
+    @Update("update sales_order set status = 'PENDING_PAYMENT', version = version + 1, updated_at = current_timestamp(3) "
+            + "where id = #{id} and wx_user_id = #{userId} and status = 'QUOTED' "
+            + "and quote_version = #{quoteVersion} and version = #{version} and pay_deadline_at > #{now}")
+    int confirmUserQuote(@Param("id") Long id, @Param("userId") Long userId,
+                         @Param("quoteVersion") int quoteVersion, @Param("version") Long version,
+                         @Param("now") LocalDateTime now);
+
+    @Update("update sales_order set status = 'CANCELLED', cancelled_at = current_timestamp(3), "
+            + "cancel_reason = #{reason}, refund_status = 'NONE', version = version + 1, updated_at = current_timestamp(3) "
+            + "where id = #{id} and wx_user_id = #{userId} and status in ('CREATED','QUOTED','PENDING_PAYMENT') and version = #{version}")
+    int cancelUser(@Param("id") Long id, @Param("userId") Long userId,
+                   @Param("version") Long version, @Param("reason") String reason);
+
     @Select("select * from sales_order where id = #{id}")
     Optional<SalesOrder> findById(@Param("id") Long id);
 
@@ -38,6 +90,7 @@ public interface SalesOrderMapper {
               <if test='status != null'>and status = #{status}</if>
               <if test='orderNo != null and orderNo != ""'>and order_no = #{orderNo}</if>
               <if test='phone != null and phone != ""'>and json_unquote(json_extract(address_snapshot, '$.phone')) = #{phone}</if>
+              <if test='refundStatus != null'>and refund_status = #{refundStatus}</if>
               <if test='startCreatedAt != null'>and created_at &gt;= #{startCreatedAt}</if>
               <if test='endCreatedAt != null'>and created_at &lt; #{endCreatedAt}</if>
             </where>
@@ -48,6 +101,7 @@ public interface SalesOrderMapper {
     List<SalesOrder> selectPage(@Param("status") String status,
                                 @Param("orderNo") String orderNo,
                                 @Param("phone") String phone,
+                                @Param("refundStatus") String refundStatus,
                                 @Param("startCreatedAt") LocalDateTime startCreatedAt,
                                 @Param("endCreatedAt") LocalDateTime endCreatedAt,
                                 @Param("offset") int offset,
@@ -60,6 +114,7 @@ public interface SalesOrderMapper {
               <if test='status != null'>and status = #{status}</if>
               <if test='orderNo != null and orderNo != ""'>and order_no = #{orderNo}</if>
               <if test='phone != null and phone != ""'>and json_unquote(json_extract(address_snapshot, '$.phone')) = #{phone}</if>
+              <if test='refundStatus != null'>and refund_status = #{refundStatus}</if>
               <if test='startCreatedAt != null'>and created_at &gt;= #{startCreatedAt}</if>
               <if test='endCreatedAt != null'>and created_at &lt; #{endCreatedAt}</if>
             </where>
@@ -68,6 +123,7 @@ public interface SalesOrderMapper {
     long count(@Param("status") String status,
                @Param("orderNo") String orderNo,
                @Param("phone") String phone,
+                                @Param("refundStatus") String refundStatus,
                @Param("startCreatedAt") LocalDateTime startCreatedAt,
                @Param("endCreatedAt") LocalDateTime endCreatedAt);
 
@@ -78,6 +134,7 @@ public interface SalesOrderMapper {
               <if test='status != null'>and status = #{status}</if>
               <if test='orderNo != null and orderNo != ""'>and order_no = #{orderNo}</if>
               <if test='phone != null and phone != ""'>and json_unquote(json_extract(address_snapshot, '$.phone')) = #{phone}</if>
+              <if test='refundStatus != null'>and refund_status = #{refundStatus}</if>
               and created_at &gt;= #{startCreatedAt}
               and created_at &lt; #{endCreatedAt}
             </where>
@@ -87,12 +144,13 @@ public interface SalesOrderMapper {
     List<SalesOrder> selectForExport(@Param("status") String status,
                                      @Param("orderNo") String orderNo,
                                      @Param("phone") String phone,
+                                @Param("refundStatus") String refundStatus,
                                      @Param("startCreatedAt") LocalDateTime startCreatedAt,
                                      @Param("endCreatedAt") LocalDateTime endCreatedAt);
 
     @Update("""
             update sales_order
-            set status = 'QUOTED', final_amount_cent = #{finalAmountCent}, quote_version = #{nextQuoteVersion},
+            set status = 'QUOTED', final_amount_cent = #{finalAmountCent}, quote_version = #{nextQuoteVersion}, timeout_next_attempt_at = null,
                 quoted_at = current_timestamp, pay_deadline_at = #{payDeadlineAt}, version = version + 1,
                 updated_at = current_timestamp
             where id = #{id} and status in ('CREATED', 'QUOTED')

@@ -1,3 +1,4 @@
+const subscription = require('../../services/subscription')
 const addressService = require('../../services/address')
 const orderService = require('../../services/order')
 const auth = require('../../services/auth')
@@ -43,6 +44,7 @@ Page({
   onLoad() {
     this.idempotencyKey = uuid()
     this.submitting = false
+    this.lifecycle = 0
     this.payload = null
     const eventChannel = this.getOpenerEventChannel ? this.getOpenerEventChannel() : null
     if (eventChannel && eventChannel.on) {
@@ -53,14 +55,19 @@ Page({
   },
 
   onShow() {
+    this.visible = true
     auth.ensureLogin()
-      .then(() => this.loadAddresses())
+      .then(() => { subscription.loadConfig(); return this.loadAddresses() })
       .catch((error) => {
         this.setData({
           addressError: error && error.message ? error.message : '登录失败，请稍后重试'
         })
       })
   },
+
+  onHide() { this.visible = false; this.lifecycle++ },
+
+  onUnload() { this.visible = false; this.lifecycle++ },
 
   applyPayload(payload) {
     if (!payload || !Array.isArray(payload.items) || payload.items.length === 0) {
@@ -141,11 +148,20 @@ Page({
     }
     this.submitting = true
     this.setData({ submitting: true, submitText: '提交中...' })
-    orderService.createOrder(request)
-      .then(() => {
+    const generation = this.lifecycle
+    subscription.requestOnce().then(() => {
+      if (!this.visible || generation !== this.lifecycle) {
+        this.submitting = false
+        this.setData({ submitting: false, submitText: '提交订单' })
+        return null
+      }
+      return orderService.createOrder(request)
+    })
+      .then((order) => {
+        if (!order) return
         wx.showToast({ title: '下单成功，等待商家确认', icon: 'success', duration: 1500 })
         setTimeout(() => {
-          wx.reLaunch({ url: '/pages/home/home' })
+          wx.redirectTo({ url: '/pages/order-detail/order-detail?id=' + order.id })
         }, 1500)
       })
       .catch((error) => {

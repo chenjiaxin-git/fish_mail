@@ -15,6 +15,8 @@
 
 ### 用户端
 
+当前阶段（2026-10-29）：用户订单、微信预支付、可信回调/查单入账、取消前关单协调和超时自动关闭已实现。超时任务默认启用，支付仍默认关闭；真实商户和 HTTPS 环境暂未就绪，未联调真实收款。订阅消息、MinIO及部署交付已接入，真实模板和生产上线尚未联调。
+
 - 首页：轮播图、分类、商品搜索、商品列表。
 - 商品：图片、简介、规格、单价、实时可用库存；库存为 0 禁止下单。
 - 购物车：按规格保存数量，选中项结算，服务端重新校验价格和库存。
@@ -49,6 +51,8 @@
 
 关键时间默认值：CREATED 1440 分钟关闭；QUOTED 和 PENDING_PAYMENT 从 quoted_at 起 60 分钟关闭。
 
+实现以 order.confirm-timeout-minutes 和报价时固定的 pay_deadline_at 判定，now>=截止时间即到期。扫描为启动后延迟 30 秒、每轮结束后再延迟 30 秒；候选使用 ID 游标分页，失败逐单持久化退避 30 秒～30 分钟，避免阻塞后续订单。关闭前重新校验版本、状态及期限，有微信交易须确认关单；已付入账、不确定保留预占。库存和状态日志使用 SYSTEM/TIMEOUT_JOB，重复执行不重复释放。新报价清除旧重试延迟，保留累计次数。
+
 ## 金额和改价
 
 - 价格以 integer cent 存储，API 字段名统一使用 amountCent 或 finalAmountCent。
@@ -78,7 +82,7 @@
 | order_status_log | from/to_status、operator、reason | 状态审计 |
 | message_log | template_type、state、error_message | 通知审计 |
 
-库存关系：可用数量 = physical_stock_qty - reserved_qty。创建订单只增加 reserved_qty；支付成功同时减少 physical_stock_qty 和 reserved_qty；取消/关闭只减少 reserved_qty。
+库存关系：可用数量 = physical_stock_qty - reserved_qty。创建时预占预估数量；支付前按需补足实称超出的数量，保存在订单项 payment_extra_reserved_qty。支付成功扣实物 actualQuantity、释放 estimatedQuantity+额外预占；未支付取消只释放全部预占，已提交微信的交易须先确认关单。结果不确定时不释放。
 
 ## 接口摘要
 
@@ -106,6 +110,7 @@
 | GET | /api/v1/orders/{id} | 订单和改价历史 |
 | POST | /api/v1/orders/{id}/confirm-quote | 确认最终金额 |
 | POST | /api/v1/orders/{id}/prepay | 创建微信 JSAPI 预支付 |
+| POST | /api/v1/orders/{id}/sync-payment | 本人订单查单恢复，最少间隔 3 秒 |
 | POST | /api/v1/orders/{id}/cancel | 取消未完成订单 |
 | POST | /api/v1/payments/wechat/notify | 微信支付回调 |
 
@@ -160,7 +165,7 @@
 ## 支付闭环
 
 1. 用户确认报价后，后端创建 out_trade_no 并调用微信支付 JSAPI。
-2. 回调使用 APIv3 验签，校验商户号、CNY、订单金额和 out_trade_no。
+2. 回调使用 APIv3 微信支付公钥验签、AES-GCM 解密，校验商户号、AppID、付款人、JSAPI、CNY、订单金额和 out_trade_no。
 3. 以 out_trade_no、transaction_id 唯一约束和幂等逻辑处理重复通知。
 4. 支付事务更新 payment_record、sales_order、stock_ledger 和 order_status_log。
 5. 金额不一致时拒绝更新业务订单，只记录异常供人工处理。
@@ -175,3 +180,19 @@
 - 下架商品不出现在用户端，但历史订单保留快照。
 - 管理员和用户越权访问均被拒绝，后台导出只能查授权范围。
 
+
+## 后台经营页面已实现（2026-10-29）
+
+- 看板：当天创建的全部订单数、当天微信成功收款毛额（未减人工退款）；按上海日期统计，跨日期四类待办可跳转筛选。
+- 订单管理：筛选分页/详情、实称报价与版本校验、配送/完成/取消、人工退款凭证登记、Bearer Token鉴权的Excel下载，退款筛选与导出一致。
+- 轮播管理：上传、NONE/商品/分类跳转、排序、启停、软删除、目标失效提示；新增管理API，复用原轮播表和公开API。
+- 看板和列表每30秒可见轮询并支持手动刷新；隐藏/离开暂停，详情表单不参与自动刷新。
+- 迁移V9只增支付成功状态/收款时间索引；实施和验收见 design/admin_business_pages_sign.md。
+
+## 订阅消息与部署交付
+
+- 三类事件与订单变更同事务登记，事件唯一键防重复入队；实际微信请求在事务外，拒收/无额度记录失败，明确可恢复错误有限重试，未知结果不重发。
+- 下单用户点击触发一次性订阅申请，拒绝/失败/不支持不阻止下单，页面离开后迟到回调不再提交。
+- GET /api/v1/users/subscription-config读取已启用模板，复用用户鉴权；不提供任意内容/收件人的消息发送接口。
+- MinIO单机部署、私有桶和专用前缀账号；商品上传API和图片URL不变，旧图按明确不存在回退，SHA-256校验迁移只复制不删原图。
+- deploy包含MySQL/MinIO/后端/Nginx、HTTPS配置、源码构建及备份恢复；V10追加通知字段，生产禁Fake登录和示例/共享JWT。正式微信联调和服务器上线后续执行。

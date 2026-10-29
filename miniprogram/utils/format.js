@@ -19,13 +19,23 @@ function formatQuantity(value) {
   return text.indexOf('.') >= 0 ? text.replace(/0+$/, '').replace(/\.$/, '') : text
 }
 
+function parseDate(value) {
+  if (!value) return null
+  const text = String(value)
+  const date = new Date(text.indexOf('T') >= 0 ? text : text.replace(/-/g, '/'))
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 function formatDate(value, withTime) {
   if (!value) return '--'
-  const date = new Date(String(value).replace(/-/g, '/'))
-  if (Number.isNaN(date.getTime())) return '--'
+  let date = parseDate(value)
+  if (!date) return '--'
   const pad = (number) => String(number).padStart(2, '0')
-  const dateText = date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
-  return withTime ? dateText + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes()) : dateText
+  const offsetTime = /(?:Z|[+-]\d{2}:?\d{2})$/.test(String(value))
+  if (offsetTime) date = new Date(date.getTime() + 8 * 60 * 60 * 1000)
+  const part = (name) => date[(offsetTime ? 'getUTC' : 'get') + name]()
+  const dateText = part('FullYear') + '-' + pad(part('Month') + 1) + '-' + pad(part('Date'))
+  return withTime ? dateText + ' ' + pad(part('Hours')) + ':' + pad(part('Minutes')) : dateText
 }
 
 function formatPriceRange(minPriceCent, maxPriceCent) {
@@ -43,4 +53,4 @@ function resolveImageUrl(url) {
   return value
 }
 
-module.exports = { formatMoneyCent, formatQuantity, formatDate, formatPriceRange, resolveImageUrl }
+module.exports = { formatMoneyCent, formatQuantity, formatDate, parseDate, formatPriceRange, resolveImageUrl }

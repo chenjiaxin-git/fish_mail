@@ -13,6 +13,12 @@ import java.util.List;
 
 @Mapper
 public interface SalesOrderItemMapper {
+    @Update("update sales_order_item set payment_extra_reserved_qty=#{extra} where id=#{id} and order_id=#{orderId}")
+    int updatePaymentExtra(@Param("id") Long id, @Param("orderId") Long orderId, @Param("extra") BigDecimal extra);
+    @Select("<script>select * from sales_order_item where order_id in "
+            + "<foreach collection='ids' item='id' open='(' separator=',' close=')'>#{id}</foreach> order by id asc</script>")
+    List<SalesOrderItem> findByOrderIds(@Param("ids") List<Long> ids);
+
     @Select("select * from sales_order_item where order_id = #{orderId} order by id asc")
     List<SalesOrderItem> findByOrderId(@Param("orderId") Long orderId);
 

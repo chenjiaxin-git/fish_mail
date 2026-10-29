@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="tabs"><view wx:for="{{tabs}}" wx:key="name" class="tab {{active === index ? 'selected' : ''}}" data-index="{{index}}" bindtap="onTabTap">{{item.name}}</view></view>
+  <view class="card" wx:for="{{orders}}" wx:for-item="order" wx:for-index="orderIndex" wx:key="id" data-id="{{order.id}}" bindtap="onOrderTap">
+    <view class="row"><text>{{order.orderNo}}</text><text class="status">{{order.statusText}}</text></view>
+    <view class="product" wx:for="{{order.items}}" wx:key="key" wx:for-index="itemIndex">
+      <image wx:if="{{item.imageUrl}}" src="{{item.imageUrl}}" mode="aspectFill" data-order="{{orderIndex}}" data-item="{{itemIndex}}" binderror="onImageError" />
+      <view wx:else class="placeholder">暂无图片</view>
+      <view><view>{{item.productName}}</view><view class="muted">{{item.specName}} · {{item.estimatedText}}{{item.unit}}</view></view>
+    </view>
+    <view class="muted">{{order.createdText}}</view><view class="countdown" wx:if="{{order.countdownText}}">{{order.countdownText}}</view>
+    <view class="amount">{{order.amountLabel}} ¥{{order.amountText}}</view>
+  </view>
+  <view wx:if="{{loading}}" class="empty">加载中...</view>
+  <view wx:if="{{error}}" class="empty">{{error}}<button bindtap="onRetry">重试</button></view>
+  <view wx:if="{{!loading &amp;&amp; !error &amp;&amp; !orders.length}}" class="empty">暂无订单</view>
+  <view wx:if="{{done &amp;&amp; orders.length}}" class="empty">已经到底了</view>
+</view>

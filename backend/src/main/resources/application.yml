@@ -12,6 +12,8 @@ spring:
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-init-sql: "SET time_zone = '+08:00'"
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -34,6 +36,12 @@ product:
 
 order:
   payment-timeout-minutes: ${ORDER_PAYMENT_TIMEOUT_MINUTES:60}
+  confirm-timeout-minutes: ${ORDER_CONFIRM_TIMEOUT_MINUTES:1440}
+  timeout-close-enabled: ${ORDER_TIMEOUT_CLOSE_ENABLED:true}
+  timeout-close-delay-ms: ${ORDER_TIMEOUT_CLOSE_DELAY_MS:30000}
+  timeout-close-batch-size: ${ORDER_TIMEOUT_CLOSE_BATCH_SIZE:50}
+  timeout-close-max-batches: ${ORDER_TIMEOUT_CLOSE_MAX_BATCHES:10}
+  timeout-close-budget-ms: ${ORDER_TIMEOUT_CLOSE_BUDGET_MS:20000}
 
 admin:
   username: ${ADMIN_USERNAME:admin}
@@ -57,3 +65,36 @@ management:
   endpoint:
     health:
       show-details: never
+
+wechat-pay:
+  enabled: ${WECHAT_PAY_ENABLED:false}
+  app-id: ${WECHAT_APPID:}
+  mch-id: ${WECHAT_PAY_MCH_ID:}
+  merchant-serial-no: ${WECHAT_PAY_MERCHANT_SERIAL_NO:}
+  private-key-path: ${WECHAT_PAY_PRIVATE_KEY_PATH:}
+  public-key-id: ${WECHAT_PAY_PUBLIC_KEY_ID:}
+  public-key-path: ${WECHAT_PAY_PUBLIC_KEY_PATH:}
+  api-v3-key: ${WECHAT_PAY_API_V3_KEY:}
+  notify-url: ${WECHAT_PAY_NOTIFY_URL:}
+  timeout-ms: ${WECHAT_PAY_TIMEOUT_MS:5000}
+
+logging:
+  level:
+    com.wechat.pay.java: WARN
+
+notification:
+  enabled: ${NOTIFICATION_ENABLED:false}
+  batch-size: ${NOTIFICATION_BATCH_SIZE:20}
+  max-attempts: ${NOTIFICATION_MAX_ATTEMPTS:3}
+  timeout-ms: ${NOTIFICATION_TIMEOUT_MS:5000}
+  max-age-minutes: ${NOTIFICATION_MAX_AGE_MINUTES:1440}
+  miniprogram-state: ${NOTIFICATION_MINIPROGRAM_STATE:formal}
+
+storage:
+  type: ${STORAGE_TYPE:local}
+  minio:
+    endpoint: ${MINIO_ENDPOINT:}
+    access-key: ${MINIO_ACCESS_KEY:}
+    secret-key: ${MINIO_SECRET_KEY:}
+    bucket: ${MINIO_BUCKET:fishmall-images}
+    prefix: products/

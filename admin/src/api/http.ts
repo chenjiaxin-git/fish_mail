@@ -36,27 +36,33 @@ http.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = 'Bearer ' + token
   }
+  config.headers['X-Trace-Id'] = crypto.randomUUID?.() || String(Date.now())
   return config
 })
 
 http.interceptors.response.use(
-  (response) => {
+  async (response) => {
+    if (response.config.responseType === 'blob') {
+      if (String(response.headers['content-type']).includes('spreadsheetml.sheet')) return response
+      throw await blobError(response.data as Blob)
+    }
     const body = response.data as ApiResponse<unknown>
     if (body.code !== '0') {
       return Promise.reject(new ApiError(body.code, body.message || '请求失败'))
     }
     return response
   },
-  (error: AxiosError<ApiResponse<unknown>>) => {
+  async (error: AxiosError<ApiResponse<unknown> | Blob>) => {
     if (error.response?.status === 401) {
       clearToken()
       if (!window.location.pathname.startsWith('/login')) {
         window.location.href = '/login'
       }
     }
-    const message = error.response?.data?.message
-    ElMessage.error(message || '网络异常，请稍后重试')
-    return Promise.reject(error.response?.data ? new ApiError(error.response.data.code, message || '请求失败') : error)
+    const body = error.response?.data
+    const failure = body instanceof Blob ? await blobError(body) : new ApiError(body?.code || 'NETWORK_ERROR', body?.message || '网络异常，请稍后重试')
+    if (!error.config?.silent) ElMessage.error(failure.message)
+    return Promise.reject(failure)
   }
 )
 
@@ -87,4 +93,9 @@ export async function uploadFile<T>(url: string, file: File): Promise<T> {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
   return response.data.data
+}
+
+async function blobError(blob: Blob): Promise<ApiError> {
+  try { const body:unknown=JSON.parse(await blob.text()); if(body && typeof body==='object' && 'message' in body && typeof body.message==='string') return new ApiError('code' in body?String(body.code):'EXPORT_ERROR',body.message) } catch { /* 不展示原始响应 */ }
+  return new ApiError('EXPORT_ERROR','导出失败，请稍后重试')
 }

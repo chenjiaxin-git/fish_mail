@@ -1,0 +1,13 @@
+# Copy to notifications.yml; configure from your actual approved templates.
+# Never enable sending with these demonstration IDs/field numbers.
+notification:
+  templates:
+    ORDER_CREATED:
+      id: REPLACE_WITH_REAL_CREATED_TEMPLATE
+      fields: {character_string1: orderNo, thing2: summary, thing3: note}
+    ORDER_QUOTED:
+      id: REPLACE_WITH_REAL_QUOTED_TEMPLATE
+      fields: {character_string1: orderNo, amount2: amount, time3: time}
+    ORDER_COMPLETED:
+      id: REPLACE_WITH_REAL_COMPLETED_TEMPLATE
+      fields: {character_string1: orderNo, thing2: summary, time3: time}

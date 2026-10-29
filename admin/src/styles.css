@@ -16,3 +16,23 @@ body {
 button {
   font-family: inherit;
 }
+
+.business-page { display:grid; gap:20px; max-width:1600px; margin:0 auto; }
+.page-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.page-heading h2 { margin:0 0 8px; font-size:24px; }
+.page-heading p,.muted { color:#747a84; font-size:13px; line-height:1.6; }
+.metric-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.metric-grid strong { display:block; font-size:34px; margin:18px 0; color:#1c6d62; }
+.metric-grid small { color:#747a84; line-height:1.6; }
+.task-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.task-grid button { border:1px solid #dce5e2; border-radius:8px; background:white; padding:22px; text-align:left; cursor:pointer; color:#303133; }
+.task-grid button:hover { border-color:#40998a; background:#f3faf8; }
+.task-grid strong { display:block; font-size:30px; margin:12px 0; }
+.task-grid span:last-child { font-size:13px; color:#337f71; }
+.pagination { justify-content:flex-end; margin-top:22px; }
+.filter-row,.action-row { display:flex; gap:10px; margin-bottom:16px; align-items:center; }
+.banner-thumbnail { width:160px; height:80px; background:#f5f7fa; }
+.banner-preview { width:360px; height:150px; display:block; margin-bottom:12px; background:#f5f7fa; }
+.dialog-input { margin:20px 0; }
+.business-page a { color:#247c70; text-decoration:none; }
+@media(max-width:1200px){ .task-grid{grid-template-columns:repeat(2,minmax(0,1fr))} .metric-grid{gap:12px}.page-heading{flex-wrap:wrap} }

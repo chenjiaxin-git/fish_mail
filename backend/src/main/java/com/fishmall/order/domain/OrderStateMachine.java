@@ -12,6 +12,10 @@ public final class OrderStateMachine {
     private static final Map<OrderAction, Set<OrderStatus>> ALLOWED = new EnumMap<>(OrderAction.class);
 
     static {
+        ALLOWED.put(OrderAction.TIMEOUT_CLOSE, EnumSet.of(OrderStatus.CREATED, OrderStatus.QUOTED, OrderStatus.PENDING_PAYMENT));
+        ALLOWED.put(OrderAction.PAYMENT_SUCCESS, EnumSet.of(OrderStatus.PENDING_PAYMENT));
+        ALLOWED.put(OrderAction.USER_CONFIRM_QUOTE, EnumSet.of(OrderStatus.QUOTED));
+        ALLOWED.put(OrderAction.USER_CANCEL, EnumSet.of(OrderStatus.CREATED, OrderStatus.QUOTED, OrderStatus.PENDING_PAYMENT));
         ALLOWED.put(OrderAction.QUOTE, EnumSet.of(OrderStatus.CREATED, OrderStatus.QUOTED));
         ALLOWED.put(OrderAction.DELIVER, EnumSet.of(OrderStatus.PAID_WAIT_DELIVERY));
         ALLOWED.put(OrderAction.COMPLETE, EnumSet.of(OrderStatus.DELIVERING));
@@ -23,7 +27,7 @@ public final class OrderStateMachine {
     }
 
     public static void validate(OrderStatus currentStatus, OrderAction action) {
-        if (currentStatus == null || action == null || !ALLOWED.get(action).contains(currentStatus)) {
+        if (currentStatus == null || action == null || !ALLOWED.getOrDefault(action, Set.of()).contains(currentStatus)) {
             throw new BusinessException(ErrorCode.ORDER_STATE_INVALID);
         }
     }

@@ -59,7 +59,7 @@ class OrderCreateServiceTest {
     @BeforeEach
     void setUp() {
         service = new OrderCreateService(addressMapper, cartItemMapper, productSpecMapper, productMapper,
-                orderMapper, orderItemMapper, stockLedgerMapper, statusLogMapper, new ObjectMapper());
+                orderMapper, orderItemMapper, stockLedgerMapper, statusLogMapper, new ObjectMapper(), org.mockito.Mockito.mock(com.fishmall.notification.NotificationOutbox.class));
     }
 
     @Test

@@ -1,0 +1,14 @@
+.page { padding: 24rpx 24rpx 60rpx; }
+.card { background: white; padding: 28rpx; border-radius: 18rpx; margin-bottom: 20rpx; line-height: 1.8; overflow-wrap: break-word; }
+.title { font-weight: bold; font-size: 32rpx; margin-bottom: 12rpx; color: #0b3b60; }
+.muted { color: #788a99; font-size: 25rpx; }
+.notice { color: #ad6516; }
+.product { display: flex; gap: 20rpx; margin-bottom: 24rpx; }
+.info { flex: 1; font-size: 27rpx; }
+image, .placeholder { width: 110rpx; height: 110rpx; border-radius: 12rpx; flex-shrink: 0; }
+.placeholder { background: #eef3f6; color: #8b9aa7; font-size: 22rpx; line-height: 110rpx; text-align: center; }
+.revision { border-top: 1rpx solid #eef3f6; padding: 16rpx 0; }
+.actions { display: flex; gap: 20rpx; margin-top: 28rpx; }
+.actions button { flex: 1; font-size: 28rpx; }
+.all-orders { margin-top: 24rpx; font-size: 28rpx; }
+.empty { padding: 32rpx; text-align: center; color: #788a99; }

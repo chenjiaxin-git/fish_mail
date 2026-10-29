@@ -1,0 +1,19 @@
+# Local caches and build products
+.m2/
+.npm-cache/
+**/node_modules/
+**/target/
+**/dist/
+**/*.tsbuildinfo
+# Runtime secrets and data
+.env
+*.env
+!*.env.example
+!backend/payment.env.example
+!backend/order-timeout.env.example
+deploy/secrets/
+deploy/certs/
+deploy/backups/
+deploy/config/notifications.yml
+backend/data/
+miniprogram/project.private.config.json

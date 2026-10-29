@@ -28,6 +28,12 @@ public class SalesOrder {
     private Long version;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime timeoutNextAttemptAt;
+    private int timeoutAttemptCount;
+    public LocalDateTime getTimeoutNextAttemptAt() { return timeoutNextAttemptAt; }
+    public void setTimeoutNextAttemptAt(LocalDateTime v) { timeoutNextAttemptAt = v; }
+    public int getTimeoutAttemptCount() { return timeoutAttemptCount; }
+    public void setTimeoutAttemptCount(int v) { timeoutAttemptCount = v; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

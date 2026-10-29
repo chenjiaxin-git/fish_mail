@@ -1,0 +1,40 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="empty">加载中...</view>
+  <view wx:if="{{error}}" class="empty">{{error}}<button wx:if="{{!inaccessible}}" bindtap="onRetry">重试</button></view>
+  <block wx:if="{{order}}">
+    <view class="card">
+      <view class="title">{{order.statusText}}</view>
+      <view wx:if="{{order.status === 'CREATED'}}">等待商家确认</view>
+      <view wx:if="{{order.status === 'PENDING_PAYMENT'}}">价格已确认，请在截止时间前完成支付</view>
+      <view wx:if="{{paymentMessage}}" class="notice">{{paymentMessage}}</view>
+      <view wx:if="{{order.countdownText}}" class="notice">{{order.countdownText}}</view>
+      <view wx:if="{{order.payDeadlineAt}}" class="muted">报价截止时间：{{order.deadlineText}}</view>
+    </view>
+    <view class="card"><view class="title">收货信息</view><view>{{order.addressSnapshot.contactName}} {{order.addressSnapshot.phone}}</view><view>{{order.addressSnapshot.detailAddress}}</view></view>
+    <view class="card">
+      <view class="title">商品清单</view>
+      <view wx:for="{{order.items}}" wx:key="id" class="product">
+        <image wx:if="{{item.imageUrl}}" src="{{item.imageUrl}}" mode="aspectFill" data-index="{{index}}" binderror="onImageError" />
+        <view wx:else class="placeholder">暂无图片</view>
+        <view class="info"><view>{{item.productName}} · {{item.specName}}</view><view class="muted">单价 ¥{{item.priceText}}/{{item.unit}}</view><view>预估 {{item.estimatedText}}{{item.unit}} · ¥{{item.estimatedAmountText}}</view><view>实称 {{item.actualText}} · 最终 {{item.finalAmountText}}</view></view>
+      </view>
+      <view>预估金额 ¥{{order.estimatedAmountText}}</view><view class="title">最终金额 {{order.finalAmountText}}</view>
+      <view class="muted">备注：{{order.remark || '无'}}</view>
+    </view>
+    <view class="card" wx:if="{{order.priceRevisions.length}}"><view class="title">改价历史</view>
+      <view wx:for="{{order.priceRevisions}}" wx:key="revisionNo" wx:for-item="revision" class="revision">
+        <view>第 {{revision.revisionNo}} 次：¥{{revision.previousText}} → ¥{{revision.finalText}}</view><view>{{revision.reason}}</view><view class="muted">{{revision.createdText}}</view>
+        <view wx:for="{{revision.items}}" wx:key="orderItemId" class="muted">商品项 {{item.orderItemId}}：实称 {{item.quantityText}}，金额 ¥{{item.amountText}}</view>
+      </view>
+    </view>
+    <view class="card"><view class="title">订单信息</view><view>订单号：{{order.orderNo}}</view>
+      <view wx:for="{{order.timeline}}" wx:key="label" class="muted">{{item.label}}：{{item.time}}</view>
+      <view wx:if="{{order.cancelReason}}">取消原因：{{order.cancelReason}}</view>
+      <view wx:if="{{order.refundStatus === 'REQUIRED'}}">退款状态：等待商家登记人工退款</view>
+      <view wx:if="{{order.refundStatus === 'MANUAL_REFUNDED'}}">退款状态：已登记人工退款</view>
+    </view>
+    <view class="actions"><button wx:if="{{order.canConfirmQuote}}" type="primary" disabled="{{submitting || loading}}" loading="{{submitting}}" bindtap="onConfirm">确认价格并支付</button><button wx:if="{{order.canPay}}" type="primary" disabled="{{submitting || loading}}" loading="{{submitting}}" bindtap="onPay">立即支付</button><button wx:if="{{order.canCancel}}" disabled="{{submitting || loading}}" bindtap="onCancel">取消订单</button></view>
+    <button wx:if="{{order.status === 'PENDING_PAYMENT'}}" disabled="{{submitting || loading}}" bindtap="pollPayment">刷新支付结果</button>
+  </block>
+  <button class="all-orders" bindtap="onAllOrders">查看全部订单</button>
+</view>

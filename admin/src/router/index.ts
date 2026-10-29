@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AdminLayout from '../layouts/AdminLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
+import OrdersView from '../views/OrdersView.vue'
+import OrderDetailView from '../views/OrderDetailView.vue'
+import BannerView from '../views/BannerView.vue'
 import LoginView from '../views/LoginView.vue'
 import CategoryView from '../views/CategoryView.vue'
 import ProductView from '../views/ProductView.vue'
@@ -15,7 +18,11 @@ const router = createRouter({
       component: AdminLayout,
       meta: { requiresAuth: true },
       children: [
-        { path: '', name: 'dashboard', component: DashboardView },
+        { path: '', redirect: '/dashboard' },
+        { path: 'dashboard', name: 'dashboard', component: DashboardView },
+        { path: 'orders', component: OrdersView },
+        { path: 'orders/:id', component: OrderDetailView },
+        { path: 'banners', component: BannerView },
         { path: 'categories', name: 'categories', component: CategoryView },
         { path: 'products', name: 'products', component: ProductView }
       ]

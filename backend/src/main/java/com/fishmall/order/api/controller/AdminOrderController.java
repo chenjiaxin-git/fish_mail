@@ -33,10 +33,12 @@ import java.time.LocalDate;
 public class AdminOrderController {
     private final AdminOrderService orderService;
     private final AdminOrderExportService exportService;
+    private final com.fishmall.payment.PaymentService payments;
 
-    public AdminOrderController(AdminOrderService orderService, AdminOrderExportService exportService) {
+    public AdminOrderController(AdminOrderService orderService, AdminOrderExportService exportService, com.fishmall.payment.PaymentService payments) {
         this.orderService = orderService;
         this.exportService = exportService;
+        this.payments = payments;
     }
 
     @GetMapping
@@ -44,6 +46,7 @@ public class AdminOrderController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String orderNo,
             @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String refundStatus,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "1") int page,
@@ -51,7 +54,7 @@ public class AdminOrderController {
             @AuthenticationPrincipal AdminPrincipal principal,
             HttpServletRequest request
     ) {
-        return ApiResponse.success(orderService.list(status, orderNo, phone, startDate, endDate, page, pageSize,
+        return ApiResponse.success(orderService.list(status, orderNo, phone, refundStatus, startDate, endDate, page, pageSize,
                 principal, traceId(request)), traceId(request));
     }
 
@@ -60,12 +63,13 @@ public class AdminOrderController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String orderNo,
             @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String refundStatus,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @AuthenticationPrincipal AdminPrincipal principal,
             HttpServletRequest request
     ) {
-        byte[] content = exportService.export(status, orderNo, phone, startDate, endDate, principal, traceId(request));
+        byte[] content = exportService.export(status, orderNo, phone, refundStatus, startDate, endDate, principal, traceId(request));
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=orders.xlsx")
@@ -107,6 +111,7 @@ public class AdminOrderController {
                                                    @Valid @RequestBody CancelOrderRequest body,
                                                    @AuthenticationPrincipal AdminPrincipal principal,
                                                    HttpServletRequest request) {
+        payments.prepareCancellation(id, null);
         return ApiResponse.success(orderService.cancel(id, body, principal, traceId(request)), traceId(request));
     }
 

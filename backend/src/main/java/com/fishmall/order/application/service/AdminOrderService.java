@@ -64,6 +64,7 @@ public class AdminOrderService {
     private final AdminOperationLogMapper operationLogMapper;
     private final OrderProperties orderProperties;
     private final ObjectMapper objectMapper;
+    private final com.fishmall.notification.NotificationOutbox notifications;
 
     public AdminOrderService(SalesOrderMapper orderMapper,
                              SalesOrderItemMapper orderItemMapper,
@@ -74,7 +75,7 @@ public class AdminOrderService {
                              ProductStockLedgerMapper stockLedgerMapper,
                              AdminOperationLogMapper operationLogMapper,
                              OrderProperties orderProperties,
-                             ObjectMapper objectMapper) {
+                             ObjectMapper objectMapper, com.fishmall.notification.NotificationOutbox notifications) {
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.priceRevisionMapper = priceRevisionMapper;
@@ -85,23 +86,25 @@ public class AdminOrderService {
         this.operationLogMapper = operationLogMapper;
         this.orderProperties = orderProperties;
         this.objectMapper = objectMapper;
+        this.notifications = notifications;
     }
 
     @Transactional
-    public PageResponse<OrderListResponse> list(String status, String orderNo, String phone,
+    public PageResponse<OrderListResponse> list(String status, String orderNo, String phone, String refundStatus,
                                                 LocalDate startDate, LocalDate endDate,
                                                 int page, int pageSize,
                                                 AdminPrincipal principal, String traceId) {
         validatePage(page, pageSize);
         String normalizedStatus = normalize(status);
+        String normalizedRefundStatus = normalizeRefundStatus(refundStatus);
         validateStatus(normalizedStatus);
         validateQueryText(orderNo, 40, "订单号");
         validateQueryText(phone, 32, "手机号");
         validateDateRange(startDate, endDate, false);
         LocalDateTime startCreatedAt = startDate == null ? null : startDate.atStartOfDay();
         LocalDateTime endCreatedAt = endDate == null ? null : endDate.plusDays(1).atStartOfDay();
-        long total = orderMapper.count(normalizedStatus, normalize(orderNo), normalize(phone), startCreatedAt, endCreatedAt);
-        List<OrderListResponse> items = orderMapper.selectPage(normalizedStatus, normalize(orderNo), normalize(phone),
+        long total = orderMapper.count(normalizedStatus, normalize(orderNo), normalize(phone), normalizedRefundStatus, startCreatedAt, endCreatedAt);
+        List<OrderListResponse> items = orderMapper.selectPage(normalizedStatus, normalize(orderNo), normalize(phone), normalizedRefundStatus,
                 startCreatedAt, endCreatedAt, (page - 1) * pageSize, pageSize).stream()
                 .map(this::toListResponse).toList();
         operationLogMapper.insert(principal.adminId(), principal.username(), "ORDER", "LIST", null,
@@ -152,7 +155,7 @@ public class AdminOrderService {
         }
         int nextQuoteVersion = Math.addExact(order.getQuoteVersion(), 1);
         int updated = orderMapper.updateQuote(id, request.finalAmountCent(), request.quoteVersion(), nextQuoteVersion,
-                LocalDateTime.now().plusMinutes(orderProperties.getPaymentTimeoutMinutes()), order.getVersion());
+                LocalDateTime.now(java.time.ZoneId.of("Asia/Shanghai")).plusMinutes(orderProperties.getPaymentTimeoutMinutes()), order.getVersion());
         if (updated != 1) {
             throw new BusinessException(ErrorCode.QUOTE_VERSION_CONFLICT);
         }
@@ -171,6 +174,7 @@ public class AdminOrderService {
         revision.setAdjustedByType("ADMIN");
         revision.setAdjustedById(principal.adminId());
         priceRevisionMapper.insert(revision);
+        notifications.enqueue("ORDER_QUOTED", id, nextQuoteVersion);
         insertStatusLog(order, "QUOTED", "商家称重改价", "ADMIN", principal.adminId(), "ADMIN");
         operationLogMapper.insert(principal.adminId(), principal.username(), "ORDER", "QUOTE", order.getOrderNo(),
                 "SUCCESS", request.reason().trim(), traceId);
@@ -203,6 +207,7 @@ public class AdminOrderService {
         if (orderMapper.updateCompleted(id, order.getVersion()) != 1) {
             throw new BusinessException(ErrorCode.ORDER_STATE_INVALID);
         }
+        notifications.enqueue("ORDER_COMPLETED", id, 0);
         insertStatusLog(order, "COMPLETED", "商家标记完成", "ADMIN", principal.adminId(), "ADMIN");
         operationLogMapper.insert(principal.adminId(), principal.username(), "ORDER", "COMPLETE", order.getOrderNo(),
                 "SUCCESS", null, traceId);
@@ -217,6 +222,9 @@ public class AdminOrderService {
         }
         OrderStateMachine.validate(order.status(), OrderAction.CANCEL);
         boolean paid = OrderStateMachine.isPaid(order.status());
+        if (!paid && paymentRecordMapper.lock(id).filter(p -> !"CLOSED".equals(p.getPhase())).isPresent()) {
+            throw new BusinessException(ErrorCode.PAYMENT_PROCESSING);
+        }
         if (orderMapper.updateCancelled(id, request.reason().trim(), paid ? "REQUIRED" : "NONE", order.getVersion()) != 1) {
             throw new BusinessException(ErrorCode.ORDER_STATE_INVALID);
         }
@@ -256,7 +264,7 @@ public class AdminOrderService {
         for (SalesOrderItem item : orderItemMapper.findByOrderId(orderId)) {
             ProductSpec spec = productSpecMapper.findForUpdateById(item.getProductSpecId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_SPEC_NOT_FOUND));
-            BigDecimal quantity = item.getEstimatedQuantity();
+            BigDecimal quantity = item.reservedQuantity();
             if (productSpecMapper.releaseReserved(spec.getId(), quantity) != 1) {
                 throw new BusinessException(ErrorCode.STOCK_INSUFFICIENT);
             }
@@ -323,8 +331,16 @@ public class AdminOrderService {
         }
     }
 
+    public static String normalizeRefundStatus(String value) {
+        if (value == null || value.isBlank()) return null;
+        if (!Set.of("NONE", "REQUIRED", "MANUAL_REFUNDED").contains(value)) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR, "退款状态不合法");
+        }
+        return value;
+    }
+
     private void validatePage(int page, int pageSize) {
-        if (page < 1 || pageSize < 1 || pageSize > 100) {
+        if (page < 1 || pageSize < 1 || pageSize > 100 || ((long) page - 1) * pageSize > Integer.MAX_VALUE) {
             throw new BusinessException(ErrorCode.VALIDATION_ERROR, "分页参数不合法");
         }
     }

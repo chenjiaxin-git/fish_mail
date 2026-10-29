@@ -3,6 +3,36 @@ package com.fishmall.order.domain;
 import java.time.LocalDateTime;
 
 public class PaymentRecord {
+    private Integer quoteVersion;
+    private String appid;
+    private String mchid;
+    private String payerOpenid;
+    private String prepayId;
+    private LocalDateTime expiresAt;
+    private String phase;
+    private String operationToken;
+    private LocalDateTime operationUntil;
+    private LocalDateTime syncAfter;
+    public Integer getQuoteVersion() { return quoteVersion; }
+    public void setQuoteVersion(Integer v) { quoteVersion = v; }
+    public String getAppid() { return appid; }
+    public void setAppid(String v) { appid = v; }
+    public String getMchid() { return mchid; }
+    public void setMchid(String v) { mchid = v; }
+    public String getPayerOpenid() { return payerOpenid; }
+    public void setPayerOpenid(String v) { payerOpenid = v; }
+    public String getPrepayId() { return prepayId; }
+    public void setPrepayId(String v) { prepayId = v; }
+    public LocalDateTime getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(LocalDateTime v) { expiresAt = v; }
+    public String getPhase() { return phase; }
+    public void setPhase(String v) { phase = v; }
+    public String getOperationToken() { return operationToken; }
+    public void setOperationToken(String v) { operationToken = v; }
+    public LocalDateTime getOperationUntil() { return operationUntil; }
+    public void setOperationUntil(LocalDateTime v) { operationUntil = v; }
+    public LocalDateTime getSyncAfter() { return syncAfter; }
+    public void setSyncAfter(LocalDateTime v) { syncAfter = v; }
     private Long id;
     private Long orderId;
     private String outTradeNo;

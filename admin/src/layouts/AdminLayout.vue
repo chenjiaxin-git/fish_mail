@@ -9,8 +9,10 @@
     </el-header>
     <el-container>
       <el-aside width="180px" class="admin-aside">
-        <el-menu router :default-active="route.path" class="admin-menu">
-          <el-menu-item index="/">管理首页</el-menu-item>
+        <el-menu router :default-active="route.path.startsWith('/orders') ? '/orders' : route.path" class="admin-menu">
+          <el-menu-item index="/dashboard">经营看板</el-menu-item>
+          <el-menu-item index="/orders">订单管理</el-menu-item>
+          <el-menu-item index="/banners">轮播图管理</el-menu-item>
           <el-menu-item index="/categories">商品分类</el-menu-item>
           <el-menu-item index="/products">商品管理</el-menu-item>
         </el-menu>

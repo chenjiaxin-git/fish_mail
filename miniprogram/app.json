@@ -1,6 +1,8 @@
 {
   "pages": [
     "pages/home/home",
+    "pages/orders/orders",
+    "pages/order-detail/order-detail",
     "pages/product-detail/product-detail",
     "pages/cart/cart",
     "pages/checkout/checkout",
@@ -27,6 +29,10 @@
       {
         "pagePath": "pages/cart/cart",
         "text": "购物车"
+      },
+      {
+        "pagePath": "pages/orders/orders",
+        "text": "我的订单"
       }
     ]
   },

@@ -15,6 +15,10 @@ public class SalesOrderItem {
     private Long unitPriceCent;
     private BigDecimal estimatedQuantity;
     private BigDecimal actualQuantity;
+    private BigDecimal paymentExtraReservedQty = BigDecimal.ZERO;
+    public BigDecimal getPaymentExtraReservedQty() { return paymentExtraReservedQty; }
+    public void setPaymentExtraReservedQty(BigDecimal value) { paymentExtraReservedQty = value; }
+    public BigDecimal reservedQuantity() { return estimatedQuantity.add(paymentExtraReservedQty); }
     private Long estimatedAmountCent;
     private Long finalAmountCent;
     private String productImageUrl;

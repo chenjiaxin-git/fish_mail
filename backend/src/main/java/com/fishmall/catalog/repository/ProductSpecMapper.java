@@ -14,6 +14,14 @@ import java.util.Optional;
 
 @Mapper
 public interface ProductSpecMapper {
+    @Update("update product_spec set reserved_qty=reserved_qty+#{quantity},updated_at=current_timestamp(3) "
+            + "where id=#{id} and physical_stock_qty-reserved_qty>=#{quantity}")
+    int reservePaymentExtra(@Param("id") Long id, @Param("quantity") BigDecimal quantity);
+
+    @Update("update product_spec set physical_stock_qty=physical_stock_qty-#{actual},reserved_qty=reserved_qty-#{reserved}, "
+            + "updated_at=current_timestamp(3) where id=#{id} and physical_stock_qty>=#{actual} and reserved_qty>=#{reserved} "
+            + "and physical_stock_qty-#{actual}>=reserved_qty-#{reserved}")
+    int deductPaid(@Param("id") Long id, @Param("actual") BigDecimal actual, @Param("reserved") BigDecimal reserved);
     @Select("<script>select * from product_spec where deleted = 0 and status = 'ACTIVE' and product_id in "
             + "<foreach collection='productIds' item='productId' open='(' separator=',' close=')'>#{productId}</foreach> "
             + "order by product_id asc, id asc</script>")

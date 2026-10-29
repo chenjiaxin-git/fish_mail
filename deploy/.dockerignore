@@ -1,0 +1,6 @@
+.env
+*.env
+certs
+secrets
+backups
+config/notifications.yml

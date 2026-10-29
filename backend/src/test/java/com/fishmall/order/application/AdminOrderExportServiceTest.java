@@ -31,7 +31,7 @@ class AdminOrderExportServiceTest {
     void rejectsRangeLongerThanThirtyOneInclusiveDays() {
         AdminOrderExportService service = new AdminOrderExportService(orderMapper, orderItemMapper, operationLogMapper, orderService);
 
-        assertThatThrownBy(() -> service.export(null, null, null, LocalDate.of(2026, 10, 1),
+        assertThatThrownBy(() -> service.export(null, null, null, null, LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 11, 1), principal(), "trace"))
                 .isInstanceOf(BusinessException.class)
                 .extracting(exception -> ((BusinessException) exception).errorCode())
@@ -40,10 +40,10 @@ class AdminOrderExportServiceTest {
 
     @Test
     void exportsEmptyWorkbookForValidRange() {
-        when(orderMapper.selectForExport(any(), any(), any(), any(), any())).thenReturn(java.util.List.of());
+        when(orderMapper.selectForExport(any(), any(), any(), any(), any(), any())).thenReturn(java.util.List.of());
         AdminOrderExportService service = new AdminOrderExportService(orderMapper, orderItemMapper, operationLogMapper, orderService);
 
-        byte[] content = service.export(null, null, null, LocalDate.of(2026, 10, 1),
+        byte[] content = service.export(null, null, null, null, LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 31), principal(), "trace");
 
         assertThat(content).isNotEmpty();

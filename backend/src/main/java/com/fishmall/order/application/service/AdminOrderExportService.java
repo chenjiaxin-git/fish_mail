@@ -46,7 +46,7 @@ public class AdminOrderExportService {
     }
 
     @Transactional
-    public byte[] export(String status, String orderNo, String phone,
+    public byte[] export(String status, String orderNo, String phone, String refundStatus,
                          LocalDate startDate, LocalDate endDate,
                          AdminPrincipal principal, String traceId) {
         if (startDate == null || endDate == null) {
@@ -55,7 +55,13 @@ public class AdminOrderExportService {
         if (startDate.isAfter(endDate) || startDate.plusDays(30).isBefore(endDate)) {
             throw new BusinessException(ErrorCode.VALIDATION_ERROR, "导出日期范围最大31天");
         }
-        List<SalesOrder> orders = orderMapper.selectForExport(status, normalize(orderNo), normalize(phone),
+        status = normalize(status);
+        if (status != null) {
+            try { com.fishmall.order.domain.OrderStatus.valueOf(status); }
+            catch (IllegalArgumentException e) { throw new BusinessException(ErrorCode.VALIDATION_ERROR, "订单状态不合法"); }
+        }
+        String refund = AdminOrderService.normalizeRefundStatus(refundStatus);
+        List<SalesOrder> orders = orderMapper.selectForExport(status, normalize(orderNo), normalize(phone), refund,
                 startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
         try (SXSSFWorkbook workbook = new SXSSFWorkbook(200);
              ByteArrayOutputStream output = new ByteArrayOutputStream()) {

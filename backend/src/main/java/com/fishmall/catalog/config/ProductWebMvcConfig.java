@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.nio.file.Path;
 
 @Configuration
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="storage.type", havingValue="local", matchIfMissing=true)
 public class ProductWebMvcConfig implements WebMvcConfigurer {
     private final ProductStorageProperties properties;
 

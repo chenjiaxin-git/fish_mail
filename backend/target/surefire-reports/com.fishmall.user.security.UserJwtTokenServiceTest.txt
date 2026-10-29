@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.fishmall.user.security.UserJwtTokenServiceTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.126 s -- in com.fishmall.user.security.UserJwtTokenServiceTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.106 s -- in com.fishmall.user.security.UserJwtTokenServiceTest

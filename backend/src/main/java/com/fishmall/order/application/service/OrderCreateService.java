@@ -58,6 +58,7 @@ public class OrderCreateService {
     private final ProductStockLedgerMapper stockLedgerMapper;
     private final OrderStatusLogMapper statusLogMapper;
     private final ObjectMapper objectMapper;
+    private final com.fishmall.notification.NotificationOutbox notifications;
 
     public OrderCreateService(UserAddressMapper addressMapper,
                               CartItemMapper cartItemMapper,
@@ -67,7 +68,7 @@ public class OrderCreateService {
                               SalesOrderItemMapper orderItemMapper,
                               ProductStockLedgerMapper stockLedgerMapper,
                               OrderStatusLogMapper statusLogMapper,
-                              ObjectMapper objectMapper) {
+                              ObjectMapper objectMapper, com.fishmall.notification.NotificationOutbox notifications) {
         this.addressMapper = addressMapper;
         this.cartItemMapper = cartItemMapper;
         this.productSpecMapper = productSpecMapper;
@@ -77,6 +78,7 @@ public class OrderCreateService {
         this.stockLedgerMapper = stockLedgerMapper;
         this.statusLogMapper = statusLogMapper;
         this.objectMapper = objectMapper;
+        this.notifications = notifications;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -123,6 +125,7 @@ public class OrderCreateService {
             insertOrderItem(order, pending);
         }
         insertCreateStatusLog(order, principal);
+        notifications.enqueue("ORDER_CREATED", order.getId(), 0);
         if (request.cartItemIds() != null && !request.cartItemIds().isEmpty()) {
             cartItemMapper.deleteByIds(principal.wxUserId(), request.cartItemIds());
         }

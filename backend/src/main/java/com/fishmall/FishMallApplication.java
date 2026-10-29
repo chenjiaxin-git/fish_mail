@@ -10,9 +10,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @MapperScan({"com.fishmall.admin.repository", "com.fishmall.catalog.repository",
-        "com.fishmall.order.repository", "com.fishmall.user.repository", "com.fishmall.cart.repository"})
+        "com.fishmall.order.repository", "com.fishmall.user.repository", "com.fishmall.cart.repository", "com.fishmall.payment.repository"})
 @EnableConfigurationProperties({AdminProperties.class, com.fishmall.catalog.config.ProductStorageProperties.class,
-        UserSecurityProperties.class, WechatAuthProperties.class})
+        com.fishmall.catalog.config.MinioProperties.class, UserSecurityProperties.class, WechatAuthProperties.class})
 public class FishMallApplication {
     public static void main(String[] args) {
         SpringApplication.run(FishMallApplication.class, args);

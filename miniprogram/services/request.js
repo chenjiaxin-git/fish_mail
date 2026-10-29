@@ -37,6 +37,7 @@ function request(options) {
           resolve(body.data)
           return
         }
+        if (response.statusCode === 401) auth.clearToken()
         reject(createApiError(body, response.statusCode))
       },
       fail() {

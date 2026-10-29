@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="storage.type", havingValue="local", matchIfMissing=true)
 public class LocalFileStorageService implements FileStorage {
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
     private static final long MAX_IMAGE_BYTES = 5L * 1024 * 1024;
@@ -35,19 +36,7 @@ public class LocalFileStorageService implements FileStorage {
 
     @Override
     public StoredFile store(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) {
-            throw new BusinessException(ErrorCode.FILE_TYPE_INVALID);
-        }
-        long maxBytes = Math.min(properties.imageMaxBytes(), MAX_IMAGE_BYTES);
-        if (file.getSize() > maxBytes) {
-            throw new BusinessException(ErrorCode.FILE_TOO_LARGE);
-        }
-        String extension = extension(file.getOriginalFilename());
-        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
-        if (!ALLOWED_EXTENSIONS.contains(extension) || !matchesContentType(extension, contentType) || !matchesMagic(file, extension)) {
-            throw new BusinessException(ErrorCode.FILE_TYPE_INVALID);
-        }
-
+        String extension = validate(file, properties.imageMaxBytes());
         String fileName = UUID.randomUUID() + "." + extension;
         Path target = root.resolve(fileName).normalize();
         if (!target.getParent().equals(root)) {
@@ -61,13 +50,22 @@ public class LocalFileStorageService implements FileStorage {
         return new StoredFile(fileName, properties.imageBaseUrl() + "/" + fileName, file.getSize());
     }
 
-    private String extension(String originalFilename) {
+    public static String validate(MultipartFile file,long configuredMax) throws IOException {
+        if(file==null||file.isEmpty())throw new BusinessException(ErrorCode.FILE_TYPE_INVALID);
+        if(file.getSize()>Math.min(configuredMax,MAX_IMAGE_BYTES))throw new BusinessException(ErrorCode.FILE_TOO_LARGE);
+        String ext=extension(file.getOriginalFilename());
+        String type=file.getContentType()==null?"":file.getContentType().toLowerCase(Locale.ROOT);
+        if(!ALLOWED_EXTENSIONS.contains(ext)||!matchesContentType(ext,type)||!matchesMagic(file,ext))throw new BusinessException(ErrorCode.FILE_TYPE_INVALID);
+        return ext;
+    }
+
+    private static String extension(String originalFilename) {
         if (originalFilename == null) return "";
         int index = originalFilename.lastIndexOf('.');
         return index < 0 ? "" : originalFilename.substring(index + 1).toLowerCase(Locale.ROOT);
     }
 
-    private boolean matchesContentType(String extension, String contentType) {
+    private static boolean matchesContentType(String extension, String contentType) {
         return switch (extension) {
             case "jpg", "jpeg" -> "image/jpeg".equals(contentType);
             case "png" -> "image/png".equals(contentType);
@@ -76,7 +74,7 @@ public class LocalFileStorageService implements FileStorage {
         };
     }
 
-    private boolean matchesMagic(MultipartFile file, String extension) throws IOException {
+    private static boolean matchesMagic(MultipartFile file, String extension) throws IOException {
         byte[] header;
         try (InputStream input = file.getInputStream()) {
             header = input.readNBytes(12);

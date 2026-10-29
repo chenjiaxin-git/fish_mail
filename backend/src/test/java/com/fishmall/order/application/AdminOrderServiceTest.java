@@ -59,7 +59,7 @@ class AdminOrderServiceTest {
     void setUp() {
         OrderProperties properties = new OrderProperties();
         service = new AdminOrderService(orderMapper, orderItemMapper, priceRevisionMapper, paymentRecordMapper,
-                statusLogMapper, productSpecMapper, stockLedgerMapper, operationLogMapper, properties, new ObjectMapper());
+                statusLogMapper, productSpecMapper, stockLedgerMapper, operationLogMapper, properties, new ObjectMapper(), org.mockito.Mockito.mock(com.fishmall.notification.NotificationOutbox.class));
     }
 
     @Test
